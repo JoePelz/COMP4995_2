@@ -3,6 +3,7 @@
 #include <d3d9.h>
 #include "Defines.h"
 #include "Drawable2D.h"
+#include "Drawable3D.h"
 #include "Camera.h"
 #include "Errors.h"
 #include <vector>
@@ -14,6 +15,8 @@
 class Model {
 	/* Collection of renderable items to be layered behind the 3d scene. */
 	std::vector<std::shared_ptr<Drawable2D>> bgLayers_;
+	/* Collection of 3d renderable items to be rendered in the scene. */
+	std::vector<std::shared_ptr<Drawable3D>> polyLayers_;
 	/* Collection of renderable items to be layered ahead of the 3d scene. */
 	std::vector<std::shared_ptr<Drawable2D>> fgLayers_;
 	//The camera representing the players view
@@ -67,6 +70,12 @@ public:
 	const std::vector<std::shared_ptr<Drawable2D>>& getFG() const;
 	/* Empty the list of foreground elements. */
 	void clearFG();
+	/* Add a drawable element to the foreground layer. */
+	void add3D(std::shared_ptr<Drawable3D> drawable);
+	/* Get the list of foreground elements. */
+	const std::vector<std::shared_ptr<Drawable3D>>& get3D() const;
+	/* Empty the list of foreground elements. */
+	void clear3D();
 	/* Get the camera object. */
 	inline Camera& Model::getCamera() { return camera_; }
 	/* Get the currently selected object's transform controls. */

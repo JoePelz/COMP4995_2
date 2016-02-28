@@ -2,6 +2,9 @@
 
 Controller::Controller(HINSTANCE hInstance)
 	: hInstance(hInstance) {
+	Cube* c = new Cube();
+	std::shared_ptr<Drawable3D> myObj(c);
+	gameModel.add3D(myObj);
 }
 
 Controller::~Controller() {
@@ -152,28 +155,10 @@ void Controller::initializeResources() {
 	HRESULT r;
 	auto device = renderEngine.getDevice();
 
-	UntransformedColouredVertex vertices[] = {
-		{ 0.0f, 1.0f, 0.0f, 0xffff0000 },
-		{ 1.0f, -1.0f, 0.0f, 0xff00ff00 },
-		{ -1.0f, -1.0f, 0.0f, 0xffffff00 }
-	};
-
-	// Nothing changes at all in how we make the vertex buffer. You can thank all that
-	// abstract code we set up for that.
-	r = device->CreateVertexBuffer(sizeof(vertices), D3DUSAGE_WRITEONLY, vertices[0].FORMAT, D3DPOOL_DEFAULT, &vertexBuffer_, NULL);
-	Errors::ErrorCheck(r, TEXT("Initialize resources failed to create vertex buffer"));
-
-	// Move vertices into the buffer.
-	void* bufferMemory;
-	r = vertexBuffer_->Lock(0, sizeof(vertices), &bufferMemory, NULL);
-	Errors::ErrorCheck(r, TEXT("Initialize resources failed to get a vertexBuffer lock"));
-
-	memcpy(bufferMemory, vertices, sizeof(vertices));
-	vertexBuffer_->Unlock();
-
-	// Tell D3D what vertex format we're using, and to use our new buffer as the stream source.
-	device->SetFVF(vertices[0].FORMAT);
-	device->SetStreamSource(0, vertexBuffer_, 0, vertices[0].STRIDE_SIZE);
+	for (auto& obj : gameModel.get3D()) {
+		obj->initializeResources(device);
+	}
+	
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	device->SetRenderState(D3DRS_LIGHTING, FALSE);
 
@@ -197,6 +182,10 @@ void Controller::initializeResources() {
 void Controller::releaseResources() {
 	gameModel.clearBG();
 	gameModel.clearFG();
+
+	for (auto& obj : gameModel.get3D()) {
+		obj->releaseResources();
+	}
 
 	if (vertexBuffer_) {
 		vertexBuffer_->Release();

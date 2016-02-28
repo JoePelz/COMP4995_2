@@ -131,6 +131,9 @@ void Renderer::Scene3D(Model& model) {
 
 	pDevice_->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 1);
 
+	for (auto& obj : model.get3D()) {
+		obj->draw(pDevice_);
+	}
 }
 
 void Renderer::PostScene2D(Model& model) {

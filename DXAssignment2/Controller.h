@@ -9,6 +9,7 @@
 #include "Mesh.h"
 #include "Input.h"
 #include "ITransform.h"
+#include "Cube.h"
 #include <d3d9.h>
 #include <memory>
 
