@@ -30,6 +30,7 @@ class Model {
 	int width_;
 	/* The device context height. */
 	int height_;
+	/* Whether to run in fullscreen mode. True for fullscreen. */
 	bool fullscreen_;
 public:
 	Model();
@@ -47,6 +48,8 @@ public:
 	inline int getWidth() const { return width_; }
 	/* Getter for screen height. */
 	inline int getHeight() const { return height_; }
+	/* Getter for fullscreen mode. */
+	inline bool getFullscreen() const { return fullscreen_; }
 
 	/* Add a drawable element to the background layer. */
 	void addBG(std::shared_ptr<Drawable2D> drawable);

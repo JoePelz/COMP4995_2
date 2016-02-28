@@ -4,7 +4,7 @@ int Renderer::startEngine(HWND hwnd, Model& model) {
 	HRESULT r = 0;//return values
 
 	//4th argument is TRUE or FALSE, where FALSE means fullscreen.
-	r = InitDirect3DDevice(hwnd, model.getWidth(), model.getHeight(), WINDOWED_MODE, D3DFMT_X8R8G8B8, pD3D_, &pDevice_);
+	r = InitDirect3DDevice(hwnd, model.getWidth(), model.getHeight(), !model.getFullscreen(), D3DFMT_X8R8G8B8, pD3D_, &pDevice_);
 	Errors::ErrorCheck(r, TEXT("Initialization of the device failed"));
 
 	r = pDevice_->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer_);

@@ -9,4 +9,4 @@
 #define VC_EXTRALEAN          //win32 switch to load fewer libraries
 #define WIN32_LEAN_AND_MEAN   //win32 switch to load fewer libraries
 
-#define WINDOWED_MODE 1    // 1 for windowed, 0 for fullscreen
+#define USE_FULLSCREEN 1    // 0 for windowed, 1 for fullscreen
