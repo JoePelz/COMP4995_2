@@ -16,7 +16,6 @@ void Controller::setHWnd(const HWND newHWnd) {
 long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
 	LPCREATESTRUCT cs;
 	static Controller* ctrl;
-	static int bMouseDown = 0;
 
 	switch (uMessage) {
 	case WM_CREATE:
@@ -39,28 +38,29 @@ long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LP
 	}
 	case WM_LBUTTONDOWN:
 	{
-		bMouseDown = 1;
 		ctrl->MouseDown(lParam);
 		return 0;
 	}
 	case WM_MOUSEMOVE:
 	{
-		if (bMouseDown) {
-			ctrl->MouseMove(lParam);
-		}
+		ctrl->MouseMove(lParam);
 		return 0;
 	}
 	case WM_LBUTTONUP:
 	{
-		if (bMouseDown) {
-			bMouseDown = 0;
-			ctrl->MouseUp(lParam);
-		}
+		ctrl->MouseUp(lParam);
 		return 0;
 	}
 	case WM_KEYDOWN:
 	{
 		if (ctrl->KeyDown(wParam)) {
+			return 0;
+		}
+		break;
+	}
+	case WM_KEYUP:
+	{
+		if (ctrl->KeyUp(wParam)) {
 			return 0;
 		}
 		break;
@@ -78,9 +78,9 @@ long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LP
 }
 
 void Controller::MouseDown(LPARAM lParam) {
-	mDown.x = GET_X_LPARAM(lParam);
-	mDown.y = GET_Y_LPARAM(lParam);
-	bMDown = true;
+	input.mpos.x = GET_X_LPARAM(lParam);
+	input.mpos.y = GET_Y_LPARAM(lParam);
+	input.lbutton = true;
 	//Errors::SetError(TEXT("Mouse down at (%d, %d)"), xPos, yPos);
 }
 
@@ -90,18 +90,20 @@ Params: lParam holds the coordinates of the mouse in client window space. Access
 Return: -
 */
 void Controller::MouseMove(LPARAM lParam) {
-	POINTFLOAT delta;
-	delta.x = (float)(GET_X_LPARAM(lParam) - mDown.x) / (float)gameModel.getWidth();
-	delta.y = (float)(GET_Y_LPARAM(lParam) - mDown.y) / (float)gameModel.getHeight();
+	if (!input.lbutton) return;
 
-	mDown.x = GET_X_LPARAM(lParam);
-	mDown.y = GET_Y_LPARAM(lParam);
+	POINTFLOAT delta;
+	delta.x = (float)(GET_X_LPARAM(lParam) - input.mpos.x) / (float)gameModel.getWidth();
+	delta.y = (float)(GET_Y_LPARAM(lParam) - input.mpos.y) / (float)gameModel.getHeight();
+
+	input.mpos.x = GET_X_LPARAM(lParam);
+	input.mpos.y = GET_Y_LPARAM(lParam);
 
 	gameModel.getCamera().addRotation(delta);
 }
 
 void Controller::MouseUp(LPARAM lParam) {
-	bMDown = false;
+	input.lbutton = false;
 }
 
 bool Controller::KeyDown(WPARAM wParam) {
@@ -123,8 +125,39 @@ bool Controller::KeyDown(WPARAM wParam) {
 		renderEngine.ChangeDisplayMode(gameModel);
 		initializeResources();
 		return TRUE;
+	case VK_W:
+		input.key_w = true;
+		return true;
+	case VK_S:
+		input.key_s = true;
+		return true;
+	case VK_A:
+		input.key_a = true;
+		return true;
+	case VK_D:
+		input.key_d = true;
+		return true;
 	}
+
 	return FALSE;
+}
+
+bool Controller::KeyUp(WPARAM wParam) {
+	switch (wParam) {
+	case VK_W:
+		input.key_w = false;
+		return true;
+	case VK_S:
+		input.key_s = false;
+		return true;
+	case VK_A:
+		input.key_a = false;
+		return true;
+	case VK_D:
+		input.key_d = false;
+		return true;
+	}
+	return false;
 }
 
 void Controller::GameStartup() {
@@ -189,11 +222,33 @@ void Controller::releaseResources() {
 }
 
 void Controller::GameLoop() {
+	updateModel(input, gameModel);
 	renderEngine.render(gameModel);
 	gameModel.setFrameTick();
 
 	if (GetAsyncKeyState(VK_ESCAPE)) {
 		PostQuitMessage(0);
+	}
+}
+
+void Controller::updateModel(const Input& input, Model& model) {
+
+	float ms = model.getFrameTime();
+	Camera& cam = model.getCamera();
+
+	float factor = ms * SENSITIVITY * 0.0001f;
+
+	if (input.key_w) {
+		cam.setPos(cam.getPos() + cam.getDirection() * factor);
+	}
+	if (input.key_s) {
+		cam.setPos(cam.getPos() - cam.getDirection() * factor);
+	}
+	if (input.key_a) {
+		cam.setPos(cam.getPos() + cam.getRight() * factor);
+	}
+	if (input.key_d) {
+		cam.setPos(cam.getPos() - cam.getRight() * factor);
 	}
 }
 

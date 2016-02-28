@@ -23,7 +23,7 @@ void Model::setFrameTick() {
 	INT64 newTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&newTime);
 
-	frameTime_ = ((frameTime_) * (FRAME_RATE_SMOOTHING - 1) + newTime - lastTime) / FRAME_RATE_SMOOTHING; //running average of last n values.
+	frameTime_ = newTime - lastTime;
 	frameRate_ = (UINT)((frameRate_ * (FRAME_RATE_SMOOTHING - 1) + ticksFrequency_ / (newTime-lastTime)) / FRAME_RATE_SMOOTHING); //running average of last n values.
 
 	lastTime = newTime;

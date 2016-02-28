@@ -7,6 +7,7 @@
 #include "FrameRate.h"
 #include "Camera.h"
 #include "Mesh.h"
+#include "Input.h"
 #include <d3d9.h>
 #include <memory>
 
@@ -24,16 +25,14 @@ private:
 	Renderer renderEngine;
 	//The current state of the program. (game data)
 	Model gameModel;
-	//Last point where the user pressed a mouse button
-	POINT mDown;
-	//Mouse state, including what buttons are pressed.
-	bool bMDown;
+	//State of user input (keys or buttons down)
+	Input input;
 	//TODO: hide this within mesh object.
 	LPDIRECT3DVERTEXBUFFER9 vertexBuffer_;
 
 	void initializeResources();
 	void releaseResources();
-
+	void updateModel(const Input& input, Model& model);
 public:
 	//Simple constructor, just saves the hInstance.
 	Controller(const HINSTANCE hInstance);
@@ -51,8 +50,10 @@ public:
 	void MouseMove(LPARAM pos);
 	/* handle mouse actions: finalizes a new line. */
 	void MouseUp(LPARAM pos);
-	/* Handles keyboard interaction. Called on key presses. Return true if key is handled. */
+	/* Handles keyboard interaction. Called on key presses. Returns true if key is handled. */
 	bool KeyDown(WPARAM key);
+	/* Handles keyboard interaction. Called on key releases. Returns true if key is handled. */
+	bool KeyUp(WPARAM key);
 
 	void Abort(int errorCode);
 
