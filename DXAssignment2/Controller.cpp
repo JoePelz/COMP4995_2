@@ -38,13 +38,25 @@ long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LP
 		ValidateRect(hWnd, NULL);//basically saying - yeah we took care of any paint msg without any overhead
 		return 0;
 	case WM_LBUTTONDOWN:
-		ctrl->MouseDown(lParam);
+		ctrl->MouseDown(lParam, 0);
+		return 0;
+	case WM_MBUTTONDOWN:
+		ctrl->MouseDown(lParam, 1);
+		return 0;
+	case WM_RBUTTONDOWN:
+		ctrl->MouseDown(lParam, 2);
 		return 0;
 	case WM_MOUSEMOVE:
 		ctrl->MouseMove(lParam);
 		return 0;
 	case WM_LBUTTONUP:
-		ctrl->MouseUp(lParam);
+		ctrl->MouseUp(lParam, 0);
+		return 0;
+	case WM_MBUTTONUP:
+		ctrl->MouseUp(lParam, 1);
+		return 0;
+	case WM_RBUTTONUP:
+		ctrl->MouseUp(lParam, 2);
 		return 0;
 	case WM_KEYDOWN:
 		if (ctrl->KeyDown(wParam)) {
@@ -63,10 +75,15 @@ long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LP
 	return DefWindowProc(hWnd, uMessage, wParam, lParam);
 }
 
-void Controller::MouseDown(LPARAM lParam) {
+void Controller::MouseDown(LPARAM lParam, int btn) {
 	input.mpos.x = GET_X_LPARAM(lParam);
 	input.mpos.y = GET_Y_LPARAM(lParam);
-	input.lbutton = true;
+	if (btn == 0)
+		input.lbutton = true;
+	else if (btn == 1)
+		input.mbutton = true;
+	else if (btn == 2)
+		input.rbutton = true;
 	//Errors::SetError(TEXT("Mouse down at (%d, %d)"), xPos, yPos);
 }
 
@@ -88,8 +105,13 @@ void Controller::MouseMove(LPARAM lParam) {
 	gameModel.getCamera().addRotation(delta);
 }
 
-void Controller::MouseUp(LPARAM lParam) {
-	input.lbutton = false;
+void Controller::MouseUp(LPARAM lParam, int btn) {
+	if (btn == 0)
+		input.lbutton = false;
+	else if (btn == 1)
+		input.mbutton = false;
+	else if (btn == 2)
+		input.rbutton = false;
 }
 
 bool Controller::KeyDown(WPARAM wParam) {
