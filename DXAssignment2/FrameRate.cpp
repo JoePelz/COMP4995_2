@@ -13,7 +13,7 @@ FrameRate::~FrameRate() {
 
 int FrameRate::draw(LPDIRECT3DSURFACE9 pBackSurf) {
 	std::ostringstream os;
-	os << "fps: " << model_->getFrameRate() << "\nticks: " << model_->getFrameTime();
+	os << "fps: " << model_->getFrameRate() << "\ntime: " << model_->getFrameTime() << "ms";
 	setText(os.str());
 	TextWriter::draw(pBackSurf);
 

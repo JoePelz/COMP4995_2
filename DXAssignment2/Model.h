@@ -38,7 +38,7 @@ public:
 	/* Getter for frame rate. */
 	UINT getFrameRate() const;
 	/* Getter for frame time in ticks. There are ticksFrequency_ ticks per second. */
-	INT64 getFrameTime() const;
+	float getFrameTime() const;
 	/* Mark that a frame has occured to update the frame rate counter.  Must be run every frame. */
 	void setFrameTick();
 	/* Initalize the frame counter, and the ticksFrequency_ variable. */

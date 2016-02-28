@@ -9,15 +9,15 @@ UINT Model::getFrameRate() const {
 	return frameRate_;
 }
 
-INT64 Model::getFrameTime() const {
-	return frameTime_;
+float Model::getFrameTime() const {
+	return (float)frameTime_ / ticksFrequency_ * 1000;
 }
 void Model::setFrameTick() {
 	static INT64 lastTime = 0;
 	INT64 newTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&newTime);
 
-	frameTime_ = (frameTime_ * (FRAME_RATE_SMOOTHING - 1) + newTime - lastTime) / FRAME_RATE_SMOOTHING; //running average of last n values.
+	frameTime_ = ((frameTime_) * (FRAME_RATE_SMOOTHING - 1) + newTime - lastTime) / FRAME_RATE_SMOOTHING; //running average of last n values.
 	frameRate_ = (UINT)((frameRate_ * (FRAME_RATE_SMOOTHING - 1) + ticksFrequency_ / (newTime-lastTime)) / FRAME_RATE_SMOOTHING); //running average of last n values.
 
 	lastTime = newTime;
