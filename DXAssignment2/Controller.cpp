@@ -58,61 +58,89 @@ long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LP
 	}
 }
 
-void Controller::MouseDown(LPARAM lParam) {
-	int xPos = GET_X_LPARAM(lParam);
-	int yPos = GET_Y_LPARAM(lParam);
 
+void Controller::MouseDown(LPARAM lParam) {
+	mDown.x = GET_X_LPARAM(lParam);
+	mDown.y = GET_Y_LPARAM(lParam);
+	bMDown = true;
 	//Errors::SetError(TEXT("Mouse down at (%d, %d)"), xPos, yPos);
 }
 
+/*
+Summary: MouseMove captures mouse movement events that occurs but only while any mouse button is down.
+Params: lParam holds the coordinates of the mouse in client window space. Access values via GET_X_LPARAM(lParam) and GET_Y_LPARAM(lParam) macros.
+Return: -
+*/
 void Controller::MouseMove(LPARAM lParam) {
-	POINT p;
-	p.x = GET_X_LPARAM(lParam);
-	p.y = GET_Y_LPARAM(lParam);
+	POINTFLOAT delta;
+	delta.x = (float)(GET_X_LPARAM(lParam) - mDown.x) / (float)gameModel.getWidth();
+	delta.y = (float)(GET_Y_LPARAM(lParam) - mDown.y) / (float)gameModel.getHeight();
+
+	mDown.x = GET_X_LPARAM(lParam);
+	mDown.y = GET_Y_LPARAM(lParam);
+
+	gameModel.getCamera().addRotation(delta);
 }
 
 void Controller::MouseUp(LPARAM lParam) {
-	int xPos = GET_X_LPARAM(lParam);
-	int yPos = GET_Y_LPARAM(lParam);
+	bMDown = false;
 }
 
-int Controller::GameStartup() {
-	if (FAILED(renderEngine.startEngine(hWnd, gameModel))) {
-		Errors::SetError(TEXT("Initialization Failed"));
-		GameShutdown();
-		return E_FAIL;
+void Controller::GameStartup() {
+	renderEngine.startEngine(hWnd, gameModel);
+
+	initializeResources();
+}
+
+void Controller::initializeResources() {
+	HRESULT r;
+	auto device = renderEngine.getDevice();
+
+	UntransformedColouredVertex vertices[] = {
+		{ 0.0f, 1.0f, 0.0f, 0xffff0000 },
+		{ 1.0f, -1.0f, 0.0f, 0xff00ff00 },
+		{ -1.0f, -1.0f, 0.0f, 0xffffff00 }
+	};
+
+	// Nothing changes at all in how we make the vertex buffer. You can thank all that
+	// abstract code we set up for that.
+	r = device->CreateVertexBuffer(sizeof(vertices), D3DUSAGE_WRITEONLY, vertices[0].FORMAT, D3DPOOL_DEFAULT, &vertexBuffer_, NULL);
+	Errors::ErrorCheck(r, TEXT("Initialize resources failed to create vertex buffer"));
+
+	// Move vertices into the buffer.
+	void* bufferMemory;
+	r = vertexBuffer_->Lock(0, sizeof(vertices), &bufferMemory, NULL);
+	Errors::ErrorCheck(r, TEXT("Initialize resources failed to get a vertexBuffer lock"));
+
+	memcpy(bufferMemory, vertices, sizeof(vertices));
+	vertexBuffer_->Unlock();
+
+	// Tell D3D what vertex format we're using, and to use our new buffer as the stream source.
+	device->SetFVF(vertices[0].FORMAT);
+	device->SetStreamSource(0, vertexBuffer_, 0, vertices[0].STRIDE_SIZE);
+	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	device->SetRenderState(D3DRS_LIGHTING, FALSE);
+}
+
+void Controller::releaseResources() {
+	if (vertexBuffer_) {
+		vertexBuffer_->Release();
+		vertexBuffer_ = NULL;
 	}
-
-	//Initialize background image
-	Background* bg = new Background(renderEngine.getDevice());
-	bg->setImage(TEXT(DEFAULT_BITMAP));
-	std::shared_ptr<Drawable2D> drawable(bg);
-	gameModel.addBG(drawable);
-
-	//Initialize frame counter
-	gameModel.initFrameTimer();
-	FrameRate* tw = new FrameRate(renderEngine.getDevice(), TEXT("font.bmp"), 10, 12, &gameModel);
-	tw->setPosition(10, 10);
-	tw->setTransparentColor(D3DCOLOR_ARGB(0, 255, 0, 255));
-	std::shared_ptr<Drawable2D> drawableText(tw);
-	gameModel.addFG(drawableText);
-
-	return S_OK;
 }
 
-int Controller::GameLoop() {
+void Controller::GameLoop() {
 	renderEngine.render(gameModel);
 	gameModel.setFrameTick();
 
-	if (GetAsyncKeyState(VK_ESCAPE))
+	if (GetAsyncKeyState(VK_ESCAPE)) {
 		PostQuitMessage(0);
-
-	return S_OK;
+	}
 }
 
-int Controller::GameShutdown() {
+void Controller::GameShutdown() {
+	releaseResources();
 	renderEngine.stopEngine();
-	return S_OK;
 }
 
 Controller::Controller(HINSTANCE hInstance)
@@ -120,6 +148,7 @@ Controller::Controller(HINSTANCE hInstance)
 }
 
 Controller::~Controller() {
+	GameShutdown();
 }
 
 void Controller::setHWnd(const HWND newHWnd) {

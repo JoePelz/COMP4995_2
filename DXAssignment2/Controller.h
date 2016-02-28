@@ -6,6 +6,7 @@
 #include "Background.h"
 #include "FrameRate.h"
 #include "Camera.h"
+#include "Mesh.h"
 #include <d3d9.h>
 #include <memory>
 
@@ -23,6 +24,15 @@ private:
 	Renderer renderEngine;
 	//The current state of the program. (game data)
 	Model gameModel;
+	//Last point where the user pressed a mouse button
+	POINT mDown;
+	//Mouse state, including what buttons are pressed.
+	bool bMDown;
+	//TODO: hide this within mesh object.
+	LPDIRECT3DVERTEXBUFFER9 vertexBuffer_;
+
+	void initializeResources();
+	void releaseResources();
 
 public:
 	//Simple constructor, just saves the hInstance.
@@ -44,13 +54,12 @@ public:
 
 
 	//Starts the renderer (initializes DirectX. See Renderer::startEngine(HWND, Model))
-	// and sets the background.
-	int GameStartup();
+	void GameStartup();
 
 	//Main function that executes every frame.  Updates the model and calls the renderer.
-	int GameLoop();
+	void GameLoop();
 
 	//Stops the renderer and closes the DirectX context.  See Renderer::stopEngine()
-	int GameShutdown();
+	void GameShutdown();
 };
 

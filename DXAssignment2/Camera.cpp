@@ -4,30 +4,28 @@
 
 Camera::Camera() :
 	position{ 0.0f, 1.7f, -5.0f },
-	direction{ 0.0f, 0.0f, 1.0f },
-	lookAt{ 0.0f, 0.0f, 0.0f },
+	direction{ 0.0f, -1.7f, 5.0f },
+	lookAt{ 0.0f, 0.0f, 1.0f },
 	right{ 1.0f, 0.0f, 0.0f },
 	up{ 0.0f, 1.0f, 0.0f },
 	nearClip{ 0.1f },
 	farClip{ 100.0f },
 	horizontalAngle{ 0.0f },
-	verticalAngle{ 0.0f },
+	verticalAngle{ -0.2f },
 	aspect{ 4.0f / 3.0f },
 	initialFoV{ D3DX_PI / 4 },
-	speed{ 3.0f },
-	mouseSpeed{ 0.005f } 
+	mouseSpeed{ 1.0f } 
 {
-	ZeroMemory(&ProjectionMatrix, sizeof(D3DXMATRIX));
 	D3DXMatrixPerspectiveFovLH(&ProjectionMatrix, initialFoV, aspect, nearClip, farClip);
-	D3DXMatrixLookAtLH(&ViewMatrix, &position, &lookAt, &up);
+	addRotation(0, 0);
 }
 
 Camera::~Camera() {
 }
 
 void Camera::addRotation(float horizontal, float vertical) {
-	horizontalAngle += horizontal;
-	verticalAngle += vertical;
+	horizontalAngle -= horizontal * mouseSpeed;
+	verticalAngle += vertical * mouseSpeed;
 
 	//No flipping upside down! I mean you!
 	if (verticalAngle > 1.570f)

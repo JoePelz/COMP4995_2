@@ -15,19 +15,18 @@ class Camera {
 	float horizontalAngle;
 	float verticalAngle;
 	float aspect;
-	float initialFoV = 45.0f;
-	float speed = 3.0f; // 3 units / second
-	float mouseSpeed = 0.005f;
+	float initialFoV;
+	float mouseSpeed;
 public:
 	Camera();
 	~Camera();
 	void setPos(const D3DXVECTOR3& newPosition);
 	void setAspect(float ratio);
 	void addRotation(float horizontal, float vertical);
+	inline void addRotation(POINTFLOAT delta) { addRotation(delta.x, delta.y); }
 	inline const D3DXVECTOR3& Camera::getPos() const { return position; }
 	inline const D3DXVECTOR3& Camera::getDirection() const { return direction; }
 	inline const D3DXVECTOR3& Camera::getRight() const { return right; }
-	inline float getMoveSpeed() const { return speed; }
 	inline float getTurnSpeed() const { return mouseSpeed; }
 	inline const D3DXMATRIXA16& getViewMatrix() const { return ViewMatrix; }
 	inline const D3DXMATRIXA16& getProjectionMatrix() const { return ProjectionMatrix; }

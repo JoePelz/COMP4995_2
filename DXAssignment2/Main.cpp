@@ -46,9 +46,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pstrCmdLin
 	controller.setHWnd(hWnd);
 	ShowWindow(hWnd, iCmdShow);
 	UpdateWindow(hWnd);
-	if (FAILED(controller.GameStartup())) {
-		return E_FAIL;
+	try {
+		controller.GameStartup();
+	} catch (LPCTSTR error) { 
+		controller.GameShutdown();
+		return 0; //shutdown the program
 	}
+
 
 	while (TRUE) {
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -61,6 +65,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pstrCmdLin
 			controller.GameLoop();
 		}
 	}
+
 	controller.GameShutdown();// clean up the game
 
 	return msg.wParam;

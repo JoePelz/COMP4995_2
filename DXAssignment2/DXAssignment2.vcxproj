@@ -164,6 +164,7 @@
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="FrameRate.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="Drawable2D.h" />
     <ClInclude Include="Errors.h" />
     <ClInclude Include="FrameRate.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="TextWriter.h" />
