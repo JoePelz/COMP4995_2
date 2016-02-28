@@ -3,7 +3,6 @@
 
 
 Camera::Camera() :
-	position{ 0.0f, 1.7f, -5.0f },
 	direction{ 0.0f, -1.7f, 5.0f },
 	lookAt{ 0.0f, 0.0f, 1.0f },
 	right{ 1.0f, 0.0f, 0.0f },
@@ -46,14 +45,14 @@ void Camera::addRotation(float horizontal, float vertical) {
 		);
 	D3DXVec3Cross(&up, &right, &direction);
 
-	lookAt = position + direction;
-	D3DXMatrixLookAtLH(&ViewMatrix, &position, &lookAt, &up);
+	lookAt = position_ + direction;
+	D3DXMatrixLookAtLH(&ViewMatrix, &position_, &lookAt, &up);
 }
 
-void Camera::setPos(const D3DXVECTOR3& newPosition) {
-	position = D3DXVECTOR3(newPosition);
-	lookAt = position + direction;
-	D3DXMatrixLookAtLH(&ViewMatrix, &position, &lookAt, &up);
+void Camera::setPosition(const D3DXVECTOR3& newPosition) {
+	ITransform::setPosition(newPosition);
+	lookAt = position_ + direction;
+	D3DXMatrixLookAtLH(&ViewMatrix, &position_, &lookAt, &up);
 }
 
 void Camera::setAspect(float ratio) {

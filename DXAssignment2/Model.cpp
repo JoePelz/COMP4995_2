@@ -1,9 +1,10 @@
 #include "Model.h"
 
-Model::Model() : frameRate_{ 1000 }, width_{ DEFAULT_WIDTH }, height_{ DEFAULT_HEIGHT }, fullscreen_{ USE_FULLSCREEN } {}
-
-Model::~Model() {
+Model::Model() : frameRate_{ 1000 }, width_{ DEFAULT_WIDTH }, height_{ DEFAULT_HEIGHT }, fullscreen_{ USE_FULLSCREEN }, selected_{&camera_} {
+	camera_.setPosition({ 0.0f, 1.7f, -5.0f });
 }
+
+Model::~Model() {}
 
 void Model::setDisplayMode(int width, int height, bool fullscreen) {
 	width_ = width;

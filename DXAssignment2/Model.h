@@ -32,6 +32,9 @@ class Model {
 	int height_;
 	/* Whether to run in fullscreen mode. True for fullscreen. */
 	bool fullscreen_;
+
+	/* The currently selected object. */
+	ITransform* selected_;
 public:
 	Model();
 	~Model();
@@ -66,5 +69,7 @@ public:
 	void clearFG();
 	/* Get the camera object. */
 	inline Camera& Model::getCamera() { return camera_; }
+	/* Get the currently selected object's transform controls. */
+	inline ITransform* getSelection() { return selected_; }
 };
 

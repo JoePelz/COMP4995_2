@@ -10,6 +10,8 @@ public:
 	bool key_s;
 	bool key_a;
 	bool key_d;
+	bool key_e;
+	bool key_c;
 	bool lbutton;
 	bool rbutton;
 	bool mbutton;

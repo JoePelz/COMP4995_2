@@ -176,9 +176,11 @@
     <ClInclude Include="Controller.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Drawable2D.h" />
+    <ClInclude Include="Drawable3D.h" />
     <ClInclude Include="Errors.h" />
     <ClInclude Include="FrameRate.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="ITransform.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Model.h" />

@@ -32,49 +32,32 @@ long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LP
 		return 0;
 	}
 	case WM_PAINT:
-	{
 		ValidateRect(hWnd, NULL);//basically saying - yeah we took care of any paint msg without any overhead
 		return 0;
-	}
 	case WM_LBUTTONDOWN:
-	{
 		ctrl->MouseDown(lParam);
 		return 0;
-	}
 	case WM_MOUSEMOVE:
-	{
 		ctrl->MouseMove(lParam);
 		return 0;
-	}
 	case WM_LBUTTONUP:
-	{
 		ctrl->MouseUp(lParam);
 		return 0;
-	}
 	case WM_KEYDOWN:
-	{
 		if (ctrl->KeyDown(wParam)) {
 			return 0;
 		}
 		break;
-	}
 	case WM_KEYUP:
-	{
 		if (ctrl->KeyUp(wParam)) {
 			return 0;
 		}
 		break;
-	}
 	case WM_DESTROY:
-	{
 		PostQuitMessage(0);
 		return 0;
 	}
-	default:
-	{
-		return DefWindowProc(hWnd, uMessage, wParam, lParam);
-	}
-	}
+	return DefWindowProc(hWnd, uMessage, wParam, lParam);
 }
 
 void Controller::MouseDown(LPARAM lParam) {
@@ -126,17 +109,17 @@ bool Controller::KeyDown(WPARAM wParam) {
 		initializeResources();
 		return TRUE;
 	case VK_W:
-		input.key_w = true;
-		return true;
+		return input.key_w = true;
 	case VK_S:
-		input.key_s = true;
-		return true;
+		return input.key_s = true;
 	case VK_A:
-		input.key_a = true;
-		return true;
+		return input.key_a = true;
 	case VK_D:
-		input.key_d = true;
-		return true;
+		return input.key_d = true;
+	case VK_E:
+		return input.key_e = true;
+	case VK_C:
+		return input.key_c = true;
 	}
 
 	return FALSE;
@@ -145,17 +128,17 @@ bool Controller::KeyDown(WPARAM wParam) {
 bool Controller::KeyUp(WPARAM wParam) {
 	switch (wParam) {
 	case VK_W:
-		input.key_w = false;
-		return true;
+		return input.key_w = false;
 	case VK_S:
-		input.key_s = false;
-		return true;
+		return input.key_s = false;
 	case VK_A:
-		input.key_a = false;
-		return true;
+		return input.key_a = false;
 	case VK_D:
-		input.key_d = false;
-		return true;
+		return input.key_d = false;
+	case VK_E:
+		return input.key_e = false;
+	case VK_C:
+		return input.key_c = false;
 	}
 	return false;
 }
@@ -232,23 +215,29 @@ void Controller::GameLoop() {
 }
 
 void Controller::updateModel(const Input& input, Model& model) {
-
+	ITransform* sel = model.getSelection();
 	float ms = model.getFrameTime();
 	Camera& cam = model.getCamera();
 
 	float factor = ms * SENSITIVITY * 0.0001f;
 
 	if (input.key_w) {
-		cam.setPos(cam.getPos() + cam.getDirection() * factor);
+		sel->translate(cam.getDirection() * factor);
 	}
 	if (input.key_s) {
-		cam.setPos(cam.getPos() - cam.getDirection() * factor);
+		sel->translate(-cam.getDirection() * factor);
 	}
 	if (input.key_a) {
-		cam.setPos(cam.getPos() + cam.getRight() * factor);
+		sel->translate(cam.getRight() * factor);
 	}
 	if (input.key_d) {
-		cam.setPos(cam.getPos() - cam.getRight() * factor);
+		sel->translate(-cam.getRight() * factor);
+	}
+	if (input.key_e) {
+		sel->translate(cam.getUp() * factor);
+	}
+	if (input.key_c) {
+		sel->translate(-cam.getUp() * factor);
 	}
 }
 
