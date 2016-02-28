@@ -105,7 +105,7 @@ int Renderer::render(Model& model) {
 
 	pDevice_->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, CLEAR_COLOR, 1.0f, 0);
 
-	//PreScene2D(model);
+	PreScene2D(model);
 
 	pDevice_->BeginScene();
 	Scene3D(model);

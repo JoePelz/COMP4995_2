@@ -169,6 +169,13 @@ void Controller::initializeResources() {
 	tw->setTransparentColor(D3DCOLOR_ARGB(0, 255, 0, 255));
 	std::shared_ptr<Drawable2D> drawableText(tw);
 	gameModel.addFG(drawableText);
+
+
+	//Initialize the background image
+	Background* bg = new Background(renderEngine.getDevice());
+	bg->setImage(TEXT(DEFAULT_BITMAP));
+	std::shared_ptr<Drawable2D> drawable(bg);
+	gameModel.addBG(drawable);
 }
 
 void Controller::releaseResources() {
