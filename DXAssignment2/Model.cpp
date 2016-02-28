@@ -1,7 +1,6 @@
 #include "Model.h"
 
-Model::Model() : bgLayers_(), fgLayers_(), camera_(), frameRate_(1000), frameTime_(0), width_(DEFAULT_WIDTH), height_(DEFAULT_HEIGHT) {
-}
+Model::Model() : frameRate_{ 1000 }, width_{ DEFAULT_WIDTH }, height_{ DEFAULT_HEIGHT } { }
 
 Model::~Model() {
 }

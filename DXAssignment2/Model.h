@@ -23,14 +23,15 @@ class Model {
 	UINT frameRate_;
 	/* The render time in ticks per frame. (1 / fps) */
 	INT64 frameTime_;
+	/* The number of timing ticks per second. */
+	INT64 ticksFrequency_;
 
 	/* The device context width. */
 	int width_;
 	/* The device context height. */
 	int height_;
+	bool fullscreen_;
 public:
-	/* The number of timing ticks per second. */
-	INT64 ticksFrequency_;
 	Model();
 	~Model();
 

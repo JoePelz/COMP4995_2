@@ -120,6 +120,15 @@ void Controller::initializeResources() {
 	device->SetStreamSource(0, vertexBuffer_, 0, vertices[0].STRIDE_SIZE);
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	device->SetRenderState(D3DRS_LIGHTING, FALSE);
+
+	//Initialize frame counter
+	gameModel.initFrameTimer();
+	FrameRate* tw = new FrameRate(renderEngine.getDevice(), TEXT("font.bmp"), 10, 12, &gameModel);
+	tw->setPosition(10, 10);
+	tw->setTransparentColor(D3DCOLOR_ARGB(0, 255, 0, 255));
+	std::shared_ptr<Drawable2D> drawableText(tw);
+	gameModel.addFG(drawableText);
+
 }
 
 void Controller::releaseResources() {

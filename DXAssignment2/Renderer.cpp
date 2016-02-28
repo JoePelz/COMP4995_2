@@ -91,7 +91,7 @@ int Renderer::render(Model & model) {
 	Scene3D(model);
 	pDevice_->EndScene();
 
-	//PostScene2D(model);
+	PostScene2D(model);
 
 	pDevice_->Present(NULL, NULL, NULL, NULL);//swap over buffer to primary surface
 	return S_OK;
