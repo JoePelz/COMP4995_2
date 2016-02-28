@@ -51,7 +51,10 @@ public:
 	void MouseMove(LPARAM pos);
 	/* handle mouse actions: finalizes a new line. */
 	void MouseUp(LPARAM pos);
+	/* Handles keyboard interaction. Called on key presses. Return true if key is handled. */
+	bool KeyDown(WPARAM key);
 
+	void Abort(int errorCode);
 
 	//Starts the renderer (initializes DirectX. See Renderer::startEngine(HWND, Model))
 	void GameStartup();

@@ -1,5 +1,17 @@
 #include "Controller.h"
 
+Controller::Controller(HINSTANCE hInstance)
+	: hInstance(hInstance) {
+}
+
+Controller::~Controller() {
+	GameShutdown();
+}
+
+void Controller::setHWnd(const HWND newHWnd) {
+	hWnd = newHWnd;
+}
+
 //Static
 long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
 	LPCREATESTRUCT cs;
@@ -46,6 +58,13 @@ long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LP
 		}
 		return 0;
 	}
+	case WM_KEYDOWN:
+	{
+		if (ctrl->KeyDown(wParam)) {
+			return 0;
+		}
+		break;
+	}
 	case WM_DESTROY:
 	{
 		PostQuitMessage(0);
@@ -58,7 +77,6 @@ long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LP
 	}
 }
 
-
 void Controller::MouseDown(LPARAM lParam) {
 	mDown.x = GET_X_LPARAM(lParam);
 	mDown.y = GET_Y_LPARAM(lParam);
@@ -67,7 +85,7 @@ void Controller::MouseDown(LPARAM lParam) {
 }
 
 /*
-Summary: MouseMove captures mouse movement events that occurs but only while any mouse button is down.
+Summary: MouseMove captures mouse movement events that occurs but only while the left mouse button is down.
 Params: lParam holds the coordinates of the mouse in client window space. Access values via GET_X_LPARAM(lParam) and GET_Y_LPARAM(lParam) macros.
 Return: -
 */
@@ -86,9 +104,31 @@ void Controller::MouseUp(LPARAM lParam) {
 	bMDown = false;
 }
 
+bool Controller::KeyDown(WPARAM wParam) {
+	switch (wParam) {
+	case VK_F:
+		try {
+			if (gameModel.getFullscreen()) {
+				//Go window mode
+				gameModel.setDisplayMode(640, 480, FALSE);
+				SetWindowPos(hWnd, HWND_NOTOPMOST, NULL, NULL, gameModel.getWidth(), gameModel.getHeight(), SWP_NOACTIVATE | SWP_NOMOVE);
+			} else {
+				//Go fullscreen
+				gameModel.setDisplayMode(800, 600, TRUE);
+			}
+		} catch (LPTSTR error) {
+			Abort(1);
+		}
+		releaseResources();
+		renderEngine.ChangeDisplayMode(gameModel);
+		initializeResources();
+		return TRUE;
+	}
+	return FALSE;
+}
+
 void Controller::GameStartup() {
 	renderEngine.startEngine(hWnd, gameModel);
-
 	initializeResources();
 }
 
@@ -121,6 +161,7 @@ void Controller::initializeResources() {
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	device->SetRenderState(D3DRS_LIGHTING, FALSE);
 
+
 	//Initialize frame counter
 	gameModel.initFrameTimer();
 	FrameRate* tw = new FrameRate(renderEngine.getDevice(), TEXT("font.bmp"), 10, 12, &gameModel);
@@ -128,10 +169,12 @@ void Controller::initializeResources() {
 	tw->setTransparentColor(D3DCOLOR_ARGB(0, 255, 0, 255));
 	std::shared_ptr<Drawable2D> drawableText(tw);
 	gameModel.addFG(drawableText);
-
 }
 
 void Controller::releaseResources() {
+	gameModel.clearBG();
+	gameModel.clearFG();
+
 	if (vertexBuffer_) {
 		vertexBuffer_->Release();
 		vertexBuffer_ = NULL;
@@ -152,14 +195,7 @@ void Controller::GameShutdown() {
 	renderEngine.stopEngine();
 }
 
-Controller::Controller(HINSTANCE hInstance)
-	: hInstance(hInstance) {
-}
-
-Controller::~Controller() {
+void Controller::Abort(int errorCode) {
 	GameShutdown();
-}
-
-void Controller::setHWnd(const HWND newHWnd) {
-	hWnd = newHWnd;
+	PostMessage(hWnd, WM_DESTROY, errorCode, errorCode);
 }

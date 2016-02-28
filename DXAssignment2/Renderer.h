@@ -6,14 +6,14 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 
-
 class Renderer {
+	D3DPRESENT_PARAMETERS parameters;
 	LPDIRECT3D9 pD3D_; //COM object
 	LPDIRECT3DDEVICE9 pDevice_; //graphics device
 	LPDIRECT3DSURFACE9 pBackBuffer_; //back buffer
 
 	// Set up the Direct3D display, with a specific width, height, fullscreen mode, and more.
-	int InitDirect3DDevice(HWND hWndTarget, int Width, int Height, BOOL bWindowed, D3DFORMAT FullScreenFormat, LPDIRECT3D9 pD3D, LPDIRECT3DDEVICE9* ppDevice);
+	int InitDirect3DDevice(HWND hWndTarget, int Width, int Height, BOOL bWindowed, D3DFORMAT FullScreenFormat, LPDIRECT3DDEVICE9* ppDevice);
 
 	// Handles 2D drawing on the background before the main 3D scene.
 	void PreScene2D(Model&);
@@ -28,10 +28,12 @@ public:
 	~Renderer();
 	
 	// Create the Direct3D COM object and initialize the device.
-	int startEngine(HWND hwnd, Model& model);
+	int startEngine(HWND hwnd, const Model& model);
 	
 	// Release the device context, and the Direct3D COM object.
 	int stopEngine();
+
+	void ChangeDisplayMode(const Model& model);
 
 	/* Main rendering function, called directly on every frame.
 	Engine::render delegates to PreScene2D, Scene3D, and PostScene2D to draw.

@@ -50,6 +50,7 @@ public:
 	inline int getHeight() const { return height_; }
 	/* Getter for fullscreen mode. */
 	inline bool getFullscreen() const { return fullscreen_; }
+	void setDisplayMode(int width, int height, bool fullscreen);
 
 	/* Add a drawable element to the background layer. */
 	void addBG(std::shared_ptr<Drawable2D> drawable);

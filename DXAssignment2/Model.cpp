@@ -5,6 +5,12 @@ Model::Model() : frameRate_{ 1000 }, width_{ DEFAULT_WIDTH }, height_{ DEFAULT_H
 Model::~Model() {
 }
 
+void Model::setDisplayMode(int width, int height, bool fullscreen) {
+	width_ = width;
+	height_ = height;
+	fullscreen_ = fullscreen;
+}
+
 UINT Model::getFrameRate() const {
 	return frameRate_;
 }

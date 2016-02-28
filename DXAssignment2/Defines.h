@@ -9,4 +9,6 @@
 #define VC_EXTRALEAN          //win32 switch to load fewer libraries
 #define WIN32_LEAN_AND_MEAN   //win32 switch to load fewer libraries
 
-#define USE_FULLSCREEN 1    // 0 for windowed, 1 for fullscreen
+#define USE_FULLSCREEN 0    // 0 for windowed, 1 for fullscreen
+
+#define VK_F 0x0046
