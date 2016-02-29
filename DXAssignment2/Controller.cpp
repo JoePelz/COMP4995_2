@@ -12,13 +12,13 @@ Controller::Controller(HINSTANCE hInstance)
 	pDrawable3D myObj2(c);
 	gameModel.add3D(myObj2);
 
-	Mesh* m = new Mesh();
+	Mesh* m = new Mesh(TEXT("Viggen.x"));
 	m->setPosition({ 2.0f, 0.5f, 0.0f });
 	m->setScale({ 2.0f, 2.0f, 2.0f });
 	pDrawable3D myMesh(m);
 	gameModel.add3D(myMesh);
 
-	m = new Mesh();
+	m = new Mesh(TEXT("Viggen.x"));
 	m->setPosition({ -2.0f, 0.5f, 0.0f });
 	m->setScale({ 2.0f, 2.0f, 2.0f });
 	pDrawable3D myMesh2(m);
