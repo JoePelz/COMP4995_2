@@ -6,16 +6,20 @@
 #include "Errors.h"
 #include "atlstr.h"
 
-// Logically, we'll call our new untransformed vertex format UntransformedColouredVertex. An
-// Untransformed vertex only holds a logical x, y, z point in space. It does not hold rhw.
-struct UntransformedColouredVertex {
+struct ColouredVertex {
 	float x, y, z;
 	DWORD colour;
 
-	// The format is ever so slightly different, and the stride size will be just 16 in
-	// this format.
 	static const DWORD FORMAT = D3DFVF_XYZ | D3DFVF_DIFFUSE;
 	static const int STRIDE_SIZE = 16;
+};
+struct ColouredNormalVertex {
+	float x, y, z;
+	float nx, ny, nz;
+	DWORD colour;
+
+	static const DWORD FORMAT = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE;
+	static const int STRIDE_SIZE = 28;
 };
 
 class Mesh : public Drawable3D {
