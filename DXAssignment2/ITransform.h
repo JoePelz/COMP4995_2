@@ -10,6 +10,7 @@ protected:
 	D3DXVECTOR3 position_;
 	D3DXQUATERNION  rotation_;
 public:
+	ITransform() : scale_{ 1.0f, 1.0f, 1.0f }, rotation_{ 0, 1, 0, 0 } {}
 	inline const D3DXVECTOR3& getPosition() const { return position_; }
 	inline const D3DXVECTOR3& getScale() const { return scale_; }
 
@@ -20,7 +21,7 @@ public:
 	virtual void scale(const D3DXVECTOR3& s) { setScale({ s.x * scale_.x, s.y * scale_.y, s.z * scale_.z }); }
 	virtual void scale(float s) { setScale(scale_ * s); }
 
-	virtual void setRotation(D3DXQUATERNION rotationMatrix) { rotation_ = rotationMatrix; }
+	virtual void setRotation(D3DXQUATERNION rotationQuat) { rotation_ = rotationQuat; }
 	virtual void setRotation(D3DXVECTOR3& axis, float angle) { D3DXQuaternionRotationAxis(&rotation_, &axis, angle); }
 	virtual void rotate(D3DXVECTOR3& axis, float angle) { 
 		D3DXQUATERNION temp;

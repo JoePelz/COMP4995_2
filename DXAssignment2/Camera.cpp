@@ -49,6 +49,11 @@ void Camera::addRotation(float horizontal, float vertical) {
 	D3DXMatrixLookAtLH(&ViewMatrix, &position_, &lookAt, &up);
 }
 
+void Camera::setFOV(float newFOV) {
+	initialFoV = newFOV;
+	D3DXMatrixPerspectiveFovLH(&ProjectionMatrix, initialFoV, aspect, nearClip, farClip);
+}
+
 void Camera::setPosition(const D3DXVECTOR3& newPosition) {
 	ITransform::setPosition(newPosition);
 	lookAt = position_ + direction;

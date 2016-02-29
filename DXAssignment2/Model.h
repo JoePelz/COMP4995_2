@@ -9,6 +9,8 @@
 #include <vector>
 #include <memory>
 
+typedef std::shared_ptr<Drawable3D> pDrawable3D;
+
 /* This class represents the current state of the program. It stores all game state information 
 	and provides accessors and mutators as needed. 
 */
@@ -16,7 +18,7 @@ class Model {
 	/* Collection of renderable items to be layered behind the 3d scene. */
 	std::vector<std::shared_ptr<Drawable2D>> bgLayers_;
 	/* Collection of 3d renderable items to be rendered in the scene. */
-	std::vector<std::shared_ptr<Drawable3D>> polyLayers_;
+	std::vector<pDrawable3D> polyLayers_;
 	/* Collection of renderable items to be layered ahead of the 3d scene. */
 	std::vector<std::shared_ptr<Drawable2D>> fgLayers_;
 	//The camera representing the players view
@@ -70,14 +72,16 @@ public:
 	const std::vector<std::shared_ptr<Drawable2D>>& getFG() const;
 	/* Empty the list of foreground elements. */
 	void clearFG();
-	/* Add a drawable element to the foreground layer. */
-	void add3D(std::shared_ptr<Drawable3D> drawable);
-	/* Get the list of foreground elements. */
-	const std::vector<std::shared_ptr<Drawable3D>>& get3D() const;
-	/* Empty the list of foreground elements. */
-	void clear3D();
+
+
+	inline void add3D(pDrawable3D drawable) { polyLayers_.push_back(drawable); }
+	inline const auto& get3D() const { return polyLayers_; }
+	inline void clear3D() { polyLayers_.clear(); }
+
 	/* Get the camera object. */
 	inline Camera& Model::getCamera() { return camera_; }
+	/* Sets the currently selected object's transform controls. */
+	inline void setSelection(ITransform* sel) { selected_ = sel; }
 	/* Get the currently selected object's transform controls. */
 	inline ITransform* getSelection() { return selected_; }
 };

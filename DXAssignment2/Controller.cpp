@@ -3,8 +3,27 @@
 Controller::Controller(HINSTANCE hInstance)
 	: hInstance(hInstance) {
 	Cube* c = new Cube();
-	std::shared_ptr<Drawable3D> myObj(c);
+	pDrawable3D myObj(c);
 	gameModel.add3D(myObj);
+
+	c = new Cube();
+	c->setPosition({ 0.0f, -0.5f, 0.0f });
+	c->setScale({ 10.0f, 1.0f, 10.0f });
+	pDrawable3D myObj2(c);
+	gameModel.add3D(myObj2);
+
+	Mesh* m = new Mesh();
+	m->setPosition({ 2.0f, 0.5f, 0.0f });
+	m->setScale({ 2.0f, 2.0f, 2.0f });
+	pDrawable3D myMesh(m);
+	gameModel.add3D(myMesh);
+
+	m = new Mesh();
+	m->setPosition({ -2.0f, 0.5f, 0.0f });
+	m->setScale({ 2.0f, 2.0f, 2.0f });
+	pDrawable3D myMesh2(m);
+	gameModel.add3D(myMesh2);
+
 }
 
 Controller::~Controller() {
@@ -59,14 +78,15 @@ long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LP
 		ctrl->MouseUp(lParam, 2);
 		return 0;
 	case WM_KEYDOWN:
-		if (ctrl->KeyDown(wParam)) {
+		if (ctrl->KeyDown(wParam))
 			return 0;
-		}
 		break;
 	case WM_KEYUP:
-		if (ctrl->KeyUp(wParam)) {
+		if (ctrl->KeyUp(wParam))
 			return 0;
-		}
+		break;
+	case WM_MOUSEWHEEL:
+		ctrl->MouseWheel(lParam, wParam);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -93,16 +113,14 @@ Params: lParam holds the coordinates of the mouse in client window space. Access
 Return: -
 */
 void Controller::MouseMove(LPARAM lParam) {
-	if (!input.lbutton) return;
+	//if no mouse buttons, don't bother
+	if (!input.lbutton && !input.rbutton && !input.mbutton) return;
 
-	POINTFLOAT delta;
-	delta.x = (float)(GET_X_LPARAM(lParam) - input.mpos.x) / (float)gameModel.getWidth();
-	delta.y = (float)(GET_Y_LPARAM(lParam) - input.mpos.y) / (float)gameModel.getHeight();
+	input.mdelta.x = (float)(GET_X_LPARAM(lParam) - input.mpos.x) / (float)gameModel.getWidth();
+	input.mdelta.y = (float)(GET_Y_LPARAM(lParam) - input.mpos.y) / (float)gameModel.getHeight();
 
 	input.mpos.x = GET_X_LPARAM(lParam);
 	input.mpos.y = GET_Y_LPARAM(lParam);
-
-	gameModel.getCamera().addRotation(delta);
 }
 
 void Controller::MouseUp(LPARAM lParam, int btn) {
@@ -127,6 +145,7 @@ bool Controller::KeyDown(WPARAM wParam) {
 				gameModel.setDisplayMode(800, 600, TRUE);
 			}
 		} catch (LPTSTR error) {
+			_tprintf_s(TEXT("%s"), error);
 			Abort(1);
 		}
 		releaseResources();
@@ -145,9 +164,24 @@ bool Controller::KeyDown(WPARAM wParam) {
 		return input.key_e = true;
 	case VK_C:
 		return input.key_c = true;
+	case VK_0:
+		gameModel.setSelection(&gameModel.getCamera());
+		return true;
+	case VK_1:
+		gameModel.setSelection(gameModel.get3D()[0].get());
+		return true;
+	case VK_2:
+		gameModel.setSelection(gameModel.get3D()[1].get());
+		return true;
+	case VK_3:
+		gameModel.setSelection(gameModel.get3D()[2].get());
+		return true;
+	case VK_4:
+		gameModel.setSelection(gameModel.get3D()[3].get());
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 bool Controller::KeyUp(WPARAM wParam) {
@@ -168,13 +202,16 @@ bool Controller::KeyUp(WPARAM wParam) {
 	return false;
 }
 
+void Controller::MouseWheel(LPARAM pos, WPARAM scroll) {
+	input.scrollAmount = GET_WHEEL_DELTA_WPARAM(scroll) / 120;
+}
+
 void Controller::GameStartup() {
 	renderEngine.startEngine(hWnd, gameModel);
 	initializeResources();
 }
 
 void Controller::initializeResources() {
-	HRESULT r;
 	auto device = renderEngine.getDevice();
 
 	for (auto& obj : gameModel.get3D()) {
@@ -208,11 +245,6 @@ void Controller::releaseResources() {
 	for (auto& obj : gameModel.get3D()) {
 		obj->releaseResources();
 	}
-
-	if (vertexBuffer_) {
-		vertexBuffer_->Release();
-		vertexBuffer_ = NULL;
-	}
 }
 
 void Controller::GameLoop() {
@@ -225,7 +257,7 @@ void Controller::GameLoop() {
 	}
 }
 
-void Controller::updateModel(const Input& input, Model& model) {
+void Controller::updateModel(Input& input, Model& model) {
 	ITransform* sel = model.getSelection();
 	float ms = model.getFrameTime();
 	Camera& cam = model.getCamera();
@@ -249,6 +281,31 @@ void Controller::updateModel(const Input& input, Model& model) {
 	}
 	if (input.key_c) {
 		sel->translate(-cam.getUp() * factor);
+	}
+
+	if (input.lbutton) {
+		if (sel == &cam) {
+			cam.addRotation(input.mdelta);
+		} else {
+			float angle = (input.mdelta.x * input.mdelta.x + input.mdelta.y * input.mdelta.y) * SENSITIVITY;
+			if (angle != 0) {
+				D3DXVECTOR3 axis;
+				D3DXVECTOR3 dir = cam.getUp() * input.mdelta.y + cam.getRight() * input.mdelta.x;
+				D3DXVec3Cross(&axis, &cam.getDirection(), &dir);
+				sel->rotate(axis, angle * 3);
+			}
+		}
+		input.mdelta.x = 0;
+		input.mdelta.y = 0;
+	}
+
+	if (input.scrollAmount != 0) {
+		if (sel == &cam) {
+			cam.setFOV(cam.getFOV() * ((float)input.scrollAmount * -0.2f + 1.0f));
+		} else {
+			sel->scale(input.scrollAmount * 0.1f + 1.0f);
+		}
+		input.scrollAmount = 0;
 	}
 }
 

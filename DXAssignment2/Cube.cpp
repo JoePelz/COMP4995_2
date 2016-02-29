@@ -1,9 +1,7 @@
 #include "Cube.h"
 
-
 Cube::Cube() {
 }
-
 
 Cube::~Cube() {
 }
@@ -60,12 +58,17 @@ void Cube::initializeResources(LPDIRECT3DDEVICE9 & device) {
 }
 
 void Cube::releaseResources() {
+	if (vertexBuffer_) {
+		vertexBuffer_->Release();
+		vertexBuffer_ = NULL;
+	}
 }
 
 void Cube::draw(LPDIRECT3DDEVICE9 & device) {
 	device->SetFVF(66); //shh. It's not magic...
 	device->SetStreamSource(0, vertexBuffer_, 0, 16); //16 is not magic at all!
 
+	device->SetTransform(D3DTS_WORLD, &getTransform());
 	for (int i = 0; i < 6; i++) {
 		device->DrawPrimitive(D3DPT_TRIANGLESTRIP, i * 4, 2);
 	}

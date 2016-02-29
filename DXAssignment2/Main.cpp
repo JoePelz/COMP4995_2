@@ -48,7 +48,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pstrCmdLin
 	UpdateWindow(hWnd);
 	try {
 		controller.GameStartup();
-	} catch (LPCTSTR error) { 
+	} catch (LPCTSTR error) {
+		_tprintf_s(TEXT("%s"), error);
 		controller.GameShutdown();
 		return 0; //shutdown the program
 	}

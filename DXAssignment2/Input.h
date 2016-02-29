@@ -5,6 +5,8 @@
 class Input {
 public:
 	POINT mpos;
+	POINTFLOAT mdelta;
+	short scrollAmount;
 	bool key_f;
 	bool key_w;
 	bool key_s;

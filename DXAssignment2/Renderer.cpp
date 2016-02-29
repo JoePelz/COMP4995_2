@@ -108,6 +108,9 @@ int Renderer::render(Model& model) {
 	PreScene2D(model);
 
 	pDevice_->BeginScene();
+	const Camera& cam = model.getCamera();
+	pDevice_->SetTransform(D3DTS_VIEW, &cam.getViewMatrix());
+	pDevice_->SetTransform(D3DTS_PROJECTION, &cam.getProjectionMatrix());
 	Scene3D(model);
 	pDevice_->EndScene();
 
@@ -125,12 +128,6 @@ void Renderer::PreScene2D(Model& model) {
 }
 
 void Renderer::Scene3D(Model& model) {
-	const Camera& cam = model.getCamera();
-	pDevice_->SetTransform(D3DTS_VIEW, &cam.getViewMatrix());
-	pDevice_->SetTransform(D3DTS_PROJECTION, &cam.getProjectionMatrix());
-
-	pDevice_->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 1);
-
 	for (auto& obj : model.get3D()) {
 		obj->draw(pDevice_);
 	}

@@ -59,13 +59,3 @@ const std::vector<std::shared_ptr<Drawable2D>>& Model::getFG() const {
 void Model::clearFG() {
 	bgLayers_.clear();
 }
-
-void Model::add3D(std::shared_ptr<Drawable3D> object) {
-	polyLayers_.push_back(object);
-}
-const std::vector<std::shared_ptr<Drawable3D>>& Model::get3D() const {
-	return polyLayers_;
-}
-void Model::clear3D() {
-	polyLayers_.clear();
-}

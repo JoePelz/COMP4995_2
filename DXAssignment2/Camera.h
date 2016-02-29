@@ -20,10 +20,12 @@ class Camera : public ITransform {
 public:
 	Camera();
 	~Camera();
+	inline float getFOV() const { return initialFoV; }
+	void setFOV(float newFOV);
 	void setPosition(const D3DXVECTOR3& newPosition) override;
 	void setAspect(float ratio);
 	void addRotation(float horizontal, float vertical);
-	inline void addRotation(POINTFLOAT delta) { addRotation(delta.x, delta.y); }
+	inline void addRotation(const POINTFLOAT& delta) { addRotation(delta.x, delta.y); }
 	inline const D3DXVECTOR3& getDirection() const { return direction; }
 	inline const D3DXVECTOR3& getRight() const { return right; }
 	inline const D3DXVECTOR3& getUp() const { return up; }

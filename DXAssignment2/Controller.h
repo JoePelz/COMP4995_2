@@ -29,12 +29,10 @@ private:
 	Model gameModel;
 	//State of user input (keys or buttons down)
 	Input input;
-	//TODO: hide this within mesh object.
-	LPDIRECT3DVERTEXBUFFER9 vertexBuffer_;
 
 	void initializeResources();
 	void releaseResources();
-	void updateModel(const Input& input, Model& model);
+	void updateModel(Input& input, Model& model);
 public:
 	//Simple constructor, just saves the hInstance.
 	Controller(const HINSTANCE hInstance);
@@ -56,6 +54,8 @@ public:
 	bool KeyDown(WPARAM key);
 	/* Handles keyboard interaction. Called on key releases. Returns true if key is handled. */
 	bool KeyUp(WPARAM key);
+	/* Handle mousewheel events. called on scrolling the mouse wheel, and finger zooming. */
+	void MouseWheel(LPARAM pos, WPARAM scroll);
 
 	void Abort(int errorCode);
 
