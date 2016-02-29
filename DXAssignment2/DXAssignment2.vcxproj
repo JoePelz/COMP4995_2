@@ -165,6 +165,7 @@
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="FrameRate.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -183,6 +184,7 @@
     <ClInclude Include="FrameRate.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="ITransform.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Model.h" />

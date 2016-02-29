@@ -12,6 +12,8 @@ class Renderer {
 	LPDIRECT3DDEVICE9 pDevice_; //graphics device
 	LPDIRECT3DSURFACE9 pBackBuffer_; //back buffer
 
+	HRESULT CreateViewport(const Model& model);
+
 	// Set up the Direct3D display, with a specific width, height, fullscreen mode, and more.
 	int InitDirect3DDevice(HWND hWndTarget, int Width, int Height, BOOL bWindowed, D3DFORMAT FullScreenFormat, LPDIRECT3DDEVICE9* ppDevice);
 

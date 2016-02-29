@@ -24,6 +24,10 @@ Controller::Controller(HINSTANCE hInstance)
 	pDrawable3D myMesh2(m);
 	gameModel.add3D(myMesh2);
 
+	pLight myLight1(new Light(D3DLIGHT_DIRECTIONAL));
+	myLight1->setPosition(0, 5, 0);
+	gameModel.addLight(myLight1);
+
 }
 
 Controller::~Controller() {
@@ -217,9 +221,63 @@ void Controller::initializeResources() {
 	for (auto& obj : gameModel.get3D()) {
 		obj->initializeResources(device);
 	}
+	/*
+	for (auto& obj : gameModel.getLights()) {
+		obj->initializeResources(device);
+	}
+	*/
+
+	D3DLIGHT9 d3dLight;
+	HRESULT   hr;
+
+	// Initialize the structure.
+	ZeroMemory(&d3dLight, sizeof(d3dLight));
+
+	// Set up a white point light.
+	d3dLight.Type = D3DLIGHT_DIRECTIONAL;
+	d3dLight.Diffuse.r = 1.0f;
+	d3dLight.Diffuse.g = 1.0f;
+	d3dLight.Diffuse.b = 1.0f;
+	d3dLight.Ambient.r = 0.3f;
+	d3dLight.Ambient.g = 0.3f;
+	d3dLight.Ambient.b = 0.3f;
+	d3dLight.Specular.r = 1.0f;
+	d3dLight.Specular.g = 1.0f;
+	d3dLight.Specular.b = 1.0f;
+
+	d3dLight.Position.x = 0.0f;
+	d3dLight.Position.y = 1.5f;
+	d3dLight.Position.z = 0.0f;
+
+	d3dLight.Direction.x = 0.0f;
+	d3dLight.Direction.y = -1.0f;
+	d3dLight.Direction.z = 0.0f;
+
+	// Don't attenuate.
+	d3dLight.Attenuation0 = 1.0f;
+	d3dLight.Range = 2000.0f;
+
+	// Set the property information for the first light.
+	hr = device->SetLight(0, &d3dLight);
+	if (SUCCEEDED(hr))
+		// Handle Success
+		OutputDebugString(TEXT("light succeeded\n"));
+	else
+		// Handle failure
+		OutputDebugString(TEXT("light failed\n"));
+
+	hr = device->LightEnable(0, true);
+	if (SUCCEEDED(hr))
+		// Handle Success
+		OutputDebugString(TEXT("light enable succeeded\n"));
+	else
+		// Handle failure
+		OutputDebugString(TEXT("light enable failed\n"));
+
 	
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-	device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	device->SetRenderState(D3DRS_LIGHTING, TRUE);
+	//device->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(128, 128, 128));
 
 
 	//Initialize frame counter

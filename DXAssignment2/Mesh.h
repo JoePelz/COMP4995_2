@@ -18,15 +18,6 @@ struct UntransformedColouredVertex {
 	static const int STRIDE_SIZE = 16;
 };
 
-// This is a Transformed vertex with a Diffuse colour component.
-struct TransformedColouredVertex {
-	float x, y, z, rhw;
-	DWORD colour;
-
-	static const DWORD FORMAT = D3DFVF_XYZRHW | D3DFVF_DIFFUSE;
-	static const int STRIDE_SIZE = 20;
-};
-
 class Mesh : public Drawable3D {
 	LPD3DXMESH              pMesh;                 // Our mesh object in sysmem
 	D3DMATERIAL9*           pMeshMaterials; // Materials for our mesh

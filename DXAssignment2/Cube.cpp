@@ -55,6 +55,20 @@ void Cube::initializeResources(LPDIRECT3DDEVICE9 & device) {
 	Errors::ErrorCheck(r, TEXT("Initialize resources failed to get a vertexBuffer lock"));
 	memcpy(bufferMemory, vertices, sizeof(vertices));
 	vertexBuffer_->Unlock();
+
+	
+	ZeroMemory(&material_, sizeof(D3DMATERIAL9));
+
+	//setup material
+	material_.Diffuse.r = 1.0f;
+	material_.Diffuse.g = 0.0f;
+	material_.Diffuse.b = 0.0f;
+	material_.Diffuse.a = 1.0f;
+	material_.Ambient.r = 1.0f;
+	material_.Ambient.g = 1.0f;
+	material_.Ambient.b = 0.0f;
+	material_.Ambient.a = 1.0f;
+
 }
 
 void Cube::releaseResources() {
@@ -67,6 +81,9 @@ void Cube::releaseResources() {
 void Cube::draw(LPDIRECT3DDEVICE9 & device) {
 	device->SetFVF(66); //shh. It's not magic...
 	device->SetStreamSource(0, vertexBuffer_, 0, 16); //16 is not magic at all!
+
+	//device->SetMaterial(&material_);
+	device->SetRenderState(D3DRS_COLORVERTEX, true);
 
 	device->SetTransform(D3DTS_WORLD, &getTransform());
 	for (int i = 0; i < 6; i++) {

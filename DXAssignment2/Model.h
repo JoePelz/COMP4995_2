@@ -6,10 +6,12 @@
 #include "Drawable3D.h"
 #include "Camera.h"
 #include "Errors.h"
+#include "Light.h"
 #include <vector>
 #include <memory>
 
 typedef std::shared_ptr<Drawable3D> pDrawable3D;
+typedef std::shared_ptr<Light> pLight;
 
 /* This class represents the current state of the program. It stores all game state information 
 	and provides accessors and mutators as needed. 
@@ -21,6 +23,8 @@ class Model {
 	std::vector<pDrawable3D> polyLayers_;
 	/* Collection of renderable items to be layered ahead of the 3d scene. */
 	std::vector<std::shared_ptr<Drawable2D>> fgLayers_;
+	/* Collection of D3D9 Lights to illuminate the scene. */
+	std::vector<pLight> lights_;
 	//The camera representing the players view
 	Camera camera_;
 
@@ -77,6 +81,10 @@ public:
 	inline void add3D(pDrawable3D drawable) { polyLayers_.push_back(drawable); }
 	inline const auto& get3D() const { return polyLayers_; }
 	inline void clear3D() { polyLayers_.clear(); }
+
+	inline void addLight(pLight light) { lights_.push_back(light); }
+	inline const auto& getLights() const { return lights_; }
+	inline void clearLights() { lights_.clear(); }
 
 	/* Get the camera object. */
 	inline Camera& Model::getCamera() { return camera_; }

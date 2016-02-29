@@ -38,7 +38,7 @@ int Background::setImage(const TCHAR* path) {
 
 
 	//Create an empty surface the size of the display device
-	r = device_->CreateOffscreenPlainSurface(description.Width, description.Height, D3DFMT_X8R8G8B8, D3DPOOL_SYSTEMMEM, &background_, NULL);
+	r = device_->CreateOffscreenPlainSurface(description.Width, description.Height, description.Format, D3DPOOL_SYSTEMMEM, &background_, NULL);
 	if (FAILED(r)) {
 		Errors::SetError(TEXT("couldn't create empty surface."));
 		return E_FAIL;

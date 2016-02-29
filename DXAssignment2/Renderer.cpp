@@ -4,13 +4,37 @@ int Renderer::startEngine(HWND hwnd, const Model& model) {
 	HRESULT r = 0;//return values
 
 	//4th argument is TRUE or FALSE, where FALSE means fullscreen.
-	r = InitDirect3DDevice(hwnd, model.getWidth(), model.getHeight(), !model.getFullscreen(), D3DFMT_X8R8G8B8, &pDevice_);
+	r = InitDirect3DDevice(hwnd, model.getWidth(), model.getHeight(), !model.getFullscreen(), D3DFMT_A8R8G8B8, &pDevice_);
 	Errors::ErrorCheck(r, TEXT("Initialization of the device failed"));
 
 	r = pDevice_->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer_);
 	Errors::ErrorCheck(r, TEXT("Couldn't get backbuffer"));
 
+	r = CreateViewport(model);
+	Errors::ErrorCheck(r, TEXT("Could not create viewport"));
+
 	return S_OK;
+}
+
+
+HRESULT Renderer::CreateViewport(const Model& model) {
+	HRESULT r = 0;
+
+	if (!pDevice_)
+		return E_FAIL;
+
+	D3DVIEWPORT9 Viewport;
+
+	Viewport.X = 0;
+	Viewport.Y = 0;
+	Viewport.Width = model.getWidth();
+	Viewport.Height = model.getHeight();
+	Viewport.MinZ = 0.0f;
+	Viewport.MaxZ = 1.0f;
+
+	r = pDevice_->SetViewport(&Viewport);
+
+	return r;
 }
 
 int Renderer::stopEngine() {

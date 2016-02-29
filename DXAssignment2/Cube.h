@@ -7,7 +7,8 @@
 
 class Cube :
 	public Drawable3D{
-	IDirect3DVertexBuffer9* vertexBuffer_ = NULL;
+	IDirect3DVertexBuffer9* vertexBuffer_;
+	D3DMATERIAL9 material_;
 public:
 	void initializeResources(LPDIRECT3DDEVICE9& device) override;
 	void releaseResources() override;
