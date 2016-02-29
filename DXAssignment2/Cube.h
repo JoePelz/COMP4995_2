@@ -1,9 +1,15 @@
 #pragma once
 
 #include "Drawable3D.h"
-#include "Mesh.h"
 #include "Errors.h"
 
+#define ColouredNormalVertex_FLAGS D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE
+#define ColouredNormalVertex_STRIDE 28
+struct ColouredNormalVertex {
+	float x, y, z;
+	float nx, ny, nz;
+	DWORD colour;
+};
 
 class Cube :
 	public Drawable3D{

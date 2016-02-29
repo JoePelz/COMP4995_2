@@ -2,7 +2,7 @@
 
 
 
-Mesh::Mesh() {
+Mesh::Mesh(TCHAR* filename) : path{ filename } {
 }
 
 
@@ -13,19 +13,11 @@ void Mesh::initializeResources(LPDIRECT3DDEVICE9 & device) {
 	LPD3DXBUFFER pD3DXMtrlBuffer;
 	HRESULT r;
 	// Load the mesh from the specified file
-	r = D3DXLoadMeshFromX(TEXT("Tiger.x"), D3DXMESH_SYSTEMMEM,
+	r = D3DXLoadMeshFromX(path, D3DXMESH_SYSTEMMEM,
 		device, NULL,
 		&pD3DXMtrlBuffer, NULL, &dwNumMaterials,
 		&pMesh);
-	if (FAILED(r)) 
-	{
-		// If model is not in current folder, try parent folder
-		r = D3DXLoadMeshFromX(TEXT("..\\Tiger.x"), D3DXMESH_SYSTEMMEM,
-			device, NULL,
-			&pD3DXMtrlBuffer, NULL, &dwNumMaterials,
-			&pMesh);
-		Errors::ErrorCheck(r, TEXT("Could not find tiger.x"));
-	}
+	Errors::ErrorCheck(r, TEXT("Could not find %s"), path);
 
 	// We need to extract the material properties and texture names from the 
 	// pD3DXMtrlBuffer
@@ -48,23 +40,15 @@ void Mesh::initializeResources(LPDIRECT3DDEVICE9 & device) {
 			_tcscpy_s(texFileName, MAX_PATH, A2T(d3dxMaterials[i].pTextureFilename));
 
 			r = D3DXCreateTextureFromFile(device, texFileName, &pMeshTextures[i]);
-			if (FAILED(r)) 
-			{
-				// If texture is not in current folder, try parent folder
-				const TCHAR* strPrefix = TEXT("..\\");
-				const int lenPrefix = lstrlen(strPrefix);
-				TCHAR strTexture[MAX_PATH];
-				lstrcpyn(strTexture, strPrefix, MAX_PATH);
-				lstrcpyn(strTexture + lenPrefix, texFileName, MAX_PATH - lenPrefix);
-				// If texture is not in current folder, try parent folder
-				r = D3DXCreateTextureFromFile(device, strTexture, &pMeshTextures[i]);
-				Errors::ErrorCheck(r, TEXT("Could not find tiger texture map."));
-			}
+			Errors::ErrorCheck(r, TEXT("Could not find texture map for %s."), path);
 		}
 	}
 
 	// Done with the material buffer
 	pD3DXMtrlBuffer->Release();
+
+	//r = D3DXComputeNormals(pMesh, NULL);
+	//Errors::ErrorCheck(r, TEXT("Compute Normals failed."));
 }
 
 void Mesh::releaseResources() {
