@@ -1,7 +1,7 @@
 #pragma once
 
 #include "d3dx9.h"
-#include "ITransform.h"
+#include "Transform3D.h"
 
 /*
 The camera class represents the view of the user, 

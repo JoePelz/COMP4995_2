@@ -8,6 +8,29 @@ Return: -
 */
 Controller::Controller(HINSTANCE hInstance)
 	: hInstance(hInstance) {
+
+	//Viggen retrieved from http://www.sandbox.de/osg/ 
+	Mesh* m = new Mesh(TEXT("Viggen.x"));
+	m->setPosition({ 2.0f, 0.5f, 0.0f });
+	m->setScale({ 2.0f, 2.0f, 2.0f });
+	pDrawable3D myMesh(m);
+	gameModel.add3D(myMesh);
+
+	//Tiger!
+	m = new Mesh(TEXT("Tiger.x"));
+	m->setPosition({ 0.0f, 1.5f, 0.0f });
+	m->setScale({ 0.5f, 0.5f, 0.5f });
+	m->rotate({ 0, 1, 0 }, D3DX_PI / 2);
+	pDrawable3D myMesh1(m);
+	gameModel.add3D(myMesh1);
+
+	//box.x manually typed (text format and all...)
+	m = new Mesh(TEXT("box.x"));
+	m->setPosition({ -2.0f, 0.5f, 0.0f });
+	m->setScale({ 0.5f, 0.5f, 0.5f });
+	pDrawable3D myMesh2(m);
+	gameModel.add3D(myMesh2);
+
 	//little center cube
 	Cube* c = new Cube();
 	pDrawable3D myObj(c);
@@ -19,20 +42,6 @@ Controller::Controller(HINSTANCE hInstance)
 	c->setScale({ 10.0f, 1.0f, 10.0f });
 	pDrawable3D myObj2(c);
 	gameModel.add3D(myObj2);
-
-	//Viggen retrieved from http://www.sandbox.de/osg/ 
-	Mesh* m = new Mesh(TEXT("Viggen.x"));
-	m->setPosition({ 2.0f, 0.5f, 0.0f });
-	m->setScale({ 2.0f, 2.0f, 2.0f });
-	pDrawable3D myMesh(m);
-	gameModel.add3D(myMesh);
-
-	//box.x manually typed (text format and all...)
-	m = new Mesh(TEXT("box.x"));
-	m->setPosition({ -2.0f, 0.5f, 0.0f });
-	m->setScale({ 0.5f, 0.5f, 0.5f });
-	pDrawable3D myMesh2(m);
-	gameModel.add3D(myMesh2);
 
 	pLight myLight1(new Light(D3DLIGHT_DIRECTIONAL));
 	myLight1->setDirection({ 1.0f, -0.5f, 0.0f });

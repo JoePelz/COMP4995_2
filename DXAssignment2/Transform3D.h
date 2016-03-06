@@ -32,8 +32,8 @@ public:
 
 	//Update the rotation of an object. Note: rotations are expressed as quaternions, not matrices.
 	virtual void setRotation(D3DXQUATERNION rotationQuat) { rotation_ = rotationQuat; }
-	virtual void setRotation(D3DXVECTOR3& axis, float angle) { D3DXQuaternionRotationAxis(&rotation_, &axis, angle); }
-	virtual void rotate(D3DXVECTOR3& axis, float angle) { 
+	virtual void setRotation(const D3DXVECTOR3& axis, float angle) { D3DXQuaternionRotationAxis(&rotation_, &axis, angle); }
+	virtual void rotate(const D3DXVECTOR3& axis, float angle) { 
 		D3DXQUATERNION temp;
 		D3DXQuaternionRotationAxis(&temp, &axis, angle);
 		setRotation(rotation_ * temp);

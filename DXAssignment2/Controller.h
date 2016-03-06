@@ -8,7 +8,7 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Input.h"
-#include "ITransform.h"
+#include "Transform3D.h"
 #include "Cube.h"
 #include "Light.h"
 #include <d3d9.h>

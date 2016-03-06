@@ -1,7 +1,7 @@
 #pragma once
 
 #include <d3d9.h>
-#include "ITransform.h"
+#include "Transform3D.h"
 
 /* This class is a common interface for things that can be drawn in 3D,
 such as cubes, tigers, and airplanes. */
