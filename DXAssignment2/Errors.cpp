@@ -1,5 +1,13 @@
 #include "Errors.h"
 
+/*
+Summary:
+	Static. Prints out an error message and returns.
+Params: 
+	szFormat: formatting string
+	...: optional format arguments
+Return: -
+*/
 void Errors::SetError(TCHAR* szFormat, ...) {
 	TCHAR szBuffer[1024];
 	va_list pArgList;
@@ -14,6 +22,13 @@ void Errors::SetError(TCHAR* szFormat, ...) {
 	OutputDebugString(TEXT("\n"));
 }
 
+/*
+Summary:
+	Translates and prints out a given error code. If the code is an error, the error is thrown.
+Params: 
+	error: the error code that may be an error.
+Return: -
+*/
 void Errors::ErrorCheck(HRESULT error, TCHAR * szFormat, ...) {
 	if (error == D3D_OK) return;
 
@@ -42,11 +57,4 @@ void Errors::ErrorCheck(HRESULT error, TCHAR * szFormat, ...) {
 	LPTSTR errorNote = new TCHAR[1024];
 	wsprintf(errorNote, TEXT("%s\r\n%s"), text, szBuffer);
 	throw(errorNote);
-}
-
-Errors::Errors() {
-}
-
-
-Errors::~Errors() {
 }

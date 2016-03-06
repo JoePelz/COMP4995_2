@@ -2,6 +2,16 @@
 
 
 
+/*
+Summary:
+	Constructor: Create a TextWriter based on the given ascii font image.
+Params: 
+	device: the device to draw in
+	path: the path to the ascii image
+	fontWidth: the width of a character in the font image
+	fontHeight: the height of a character in the font image
+Return: -
+*/
 TextWriter::TextWriter(LPDIRECT3DDEVICE9& device, const TCHAR* path, int fontWidth, int fontHeight)
 	: alphabet_(NULL),
 	charWidth_(fontWidth),
@@ -13,11 +23,25 @@ TextWriter::TextWriter(LPDIRECT3DDEVICE9& device, const TCHAR* path, int fontWid
 	LoadImageToSurface(device, path);
 }
 
+/*
+Summary:
+	Release resources for the font.
+Params: -
+Return: -
+*/
 TextWriter::~TextWriter() {
 	if (alphabet_ != NULL)
 		alphabet_->Release();
 }
 
+/*
+Summary:
+	Load an image from file, using the given device.
+Params:
+	device: the Direct3D device to create a surface with.
+	pathname: The path to the image file (bmp only)
+Return: -
+*/
 int TextWriter::LoadImageToSurface(LPDIRECT3DDEVICE9& device, const TCHAR* const pathname) {
 	HRESULT r;
 	HBITMAP hBitmap;
@@ -53,24 +77,64 @@ int TextWriter::LoadImageToSurface(LPDIRECT3DDEVICE9& device, const TCHAR* const
 	return S_OK;
 }
 
+/*
+Summary:
+	Set which color to treat as transparent in the font image. use NULL to disable transparency.
+Params: 
+	colorKey: the color to treat as transparent in the font image. Use D3DCOLOR_ARGB() or D3DCOLOR_XRGB() macros to generate
+Return: -
+*/
 void TextWriter::setTransparentColor(D3DCOLOR colorKey) {
 	bTransparent_ = (colorKey != NULL);
 	colorKey_ = colorKey;
 }
 
+/*
+Summary:
+	Set what text to display on the screen.
+Params:
+	text: the text to write on the screen.
+Return: -
+*/
 void TextWriter::setText(const std::string& text) {
 	text_ = text;
 }
 
+/*
+Summary:
+	Set what text to display on the screen.
+Params:
+	text: the text to write on the screen.
+Return: -
+*/
 void TextWriter::setText(const std::string&& text) {
 	text_ = move(text);
 }
 
+/*
+Summary:
+	Set the position on the screen to draw the text at. Represents top left corner of text.
+Params: 
+	x: the x position to start at in pixels
+	y: the y position to start at in pixels.
+Return: -
+*/
 void TextWriter::setPosition(int x, int y) {
 	posx_ = x;
 	posy_ = y;
 }
 
+/*
+Summary:
+	Draw a single character onto a buffer.
+Params: 
+	x: the x coordinate in pixels to draw at
+	y: the y coordinate in pixels to draw at
+	Character: the char to draw
+	pDestData: the buffer to draw on
+	DestPitch: the number of elements wide pDestData. A.k.a. `stride`.
+Return: -
+*/
 void TextWriter::PrintChar(int x, int y, const char Character, DWORD* pDestData, int DestPitch) const {
 	HRESULT r = 0;
 
@@ -166,6 +230,13 @@ void TextWriter::PrintChar(int x, int y, const char Character, DWORD* pDestData,
 	alphabet_->UnlockRect();
 }
 
+/*
+Summary:
+	Draw the current text onto the given surface
+Params: 
+	pBackSurf: the surface to draw onto.
+Return: -
+*/
 int TextWriter::draw(LPDIRECT3DSURFACE9 pBackSurf) {
 	HRESULT hr;
 	D3DLOCKED_RECT LockedRect;//locked area of display memory(buffer really) we are drawing to

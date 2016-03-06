@@ -1,14 +1,13 @@
 #include "Mesh.h"
 
 
-
-Mesh::Mesh(TCHAR* filename) : path{ filename } {
-}
-
-
-Mesh::~Mesh() {
-}
-
+/*
+Summary:
+	Initialize the mesh within the Direct3D device.
+Params: 
+	device: The Direct3D device to install the mesh into.
+Return: -
+*/
 void Mesh::initializeResources(LPDIRECT3DDEVICE9 & device) {
 	LPD3DXBUFFER pD3DXMtrlBuffer;
 	HRESULT r;
@@ -46,11 +45,14 @@ void Mesh::initializeResources(LPDIRECT3DDEVICE9 & device) {
 
 	// Done with the material buffer
 	pD3DXMtrlBuffer->Release();
-
-	//r = D3DXComputeNormals(pMesh, NULL);
-	//Errors::ErrorCheck(r, TEXT("Compute Normals failed."));
 }
 
+/*
+Summary:
+	Uninstall the mesh from the Direct3D device and releases resources.
+Params: -
+Return: -
+*/
 void Mesh::releaseResources() {
 	if (pMeshMaterials != NULL)
 		delete[] pMeshMaterials;
@@ -70,6 +72,13 @@ void Mesh::releaseResources() {
 	pMesh = NULL;
 }
 
+/*
+Summary:
+	Triggers the mesh to be rendered on this frame.
+Params: 
+	device: the Direct3D device to render in.
+Return: -
+*/
 void Mesh::draw(LPDIRECT3DDEVICE9 & device) {
 	device->SetTransform(D3DTS_WORLD, &getTransform());
 

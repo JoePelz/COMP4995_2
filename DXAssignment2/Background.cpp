@@ -1,14 +1,32 @@
 #include "Background.h"
 
+/*
+Summary:
+	Constructor.  Creates an empty background object.
+Params: 
+	D3DDevice: the active device that Direct3D device.
+Return: -
+*/
 Background::Background(LPDIRECT3DDEVICE9& D3DDevice) 
-	: device_(D3DDevice) {
+	: device_(D3DDevice) { }
 
-}
-
+/*
+Summary:
+	Destructor: Releases the direct3D resources.
+Params: -
+Return: -
+*/
 Background::~Background() {
 	background_->Release();
 }
 
+/*
+Summary:
+	Draws the image onto the surface specified, overwriting all pixels.
+Params: 
+	pBackSurf: The backbuffer to draw onto.
+Return: S_OK on success, E_FAIL on error.
+*/
 int Background::draw(LPDIRECT3DSURFACE9 pBackSurf) {
 	HRESULT hr = device_->UpdateSurface(background_, NULL, pBackSurf, NULL);
 	if (FAILED(hr)) {
@@ -18,6 +36,13 @@ int Background::draw(LPDIRECT3DSURFACE9 pBackSurf) {
 	return S_OK;
 }
 
+/*
+Summary:
+	Set and load the image for this background to use. 
+Params: 
+	newFOV: the new field of view for the camera, in radians.
+Return: S_OK on success, E_FAIL on error.
+*/
 int Background::setImage(const TCHAR* path) {
 	LPDIRECT3DSURFACE9 picture_full = 0;
 	HRESULT r;
@@ -56,6 +81,14 @@ int Background::setImage(const TCHAR* path) {
 	return S_OK;
 }
 
+/*
+Summary:
+	Loads an image from file and return it via the given surface. 
+Params: 
+	pathname: the path to the background file
+	surface: Output parameter. Points to new surface of the image.
+Return: S_OK on success, E_FAIL on error.
+*/
 int Background::LoadImageToSurface(const TCHAR* const pathname, LPDIRECT3DSURFACE9& surface) const {
 	HRESULT r;
 	HBITMAP hBitmap;
@@ -71,7 +104,6 @@ int Background::LoadImageToSurface(const TCHAR* const pathname, LPDIRECT3DSURFAC
 	DeleteObject(hBitmap);//we only needed it for the header info to create a D3D surface
 
 	//create surface for bitmap
-	//r=device_->CreateOffscreenPlainSurface(Bitmap.bmWidth, Bitmap.bmHeight, D3DFMT_X8R8G8B8, D3DPOOL_SCRATCH,   &surface, NULL);
 	r = device_->CreateOffscreenPlainSurface(Bitmap.bmWidth, Bitmap.bmHeight, D3DFMT_X8R8G8B8, D3DPOOL_SYSTEMMEM, &surface, NULL);
 
 	if (FAILED(r)) {

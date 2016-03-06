@@ -1,5 +1,13 @@
 #include "Renderer.h"
 
+/*
+Summary:
+	Initialize the Direct3D engine to be ready to begin rendering.
+Params: 
+	hwnd: Handle to the Win32 window that will draw the Direct3D data.
+	model: The program state model containing resolution information.
+Return: S_OK on success.
+*/
 int Renderer::startEngine(HWND hwnd, const Model& model) {
 	HRESULT r = 0;//return values
 
@@ -10,33 +18,15 @@ int Renderer::startEngine(HWND hwnd, const Model& model) {
 	r = pDevice_->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer_);
 	Errors::ErrorCheck(r, TEXT("Couldn't get backbuffer"));
 
-	r = CreateViewport(model);
-	Errors::ErrorCheck(r, TEXT("Could not create viewport"));
-
 	return S_OK;
 }
 
-
-HRESULT Renderer::CreateViewport(const Model& model) {
-	HRESULT r = 0;
-
-	if (!pDevice_)
-		return E_FAIL;
-
-	D3DVIEWPORT9 Viewport;
-
-	Viewport.X = 0;
-	Viewport.Y = 0;
-	Viewport.Width = model.getWidth();
-	Viewport.Height = model.getHeight();
-	Viewport.MinZ = 0.0f;
-	Viewport.MaxZ = 1.0f;
-
-	r = pDevice_->SetViewport(&Viewport);
-
-	return r;
-}
-
+/*
+Summary:
+	Release resources and shutdown the Direct3D device in preparation for termination, or a reset of the device.
+Params: -
+Return: -
+*/
 int Renderer::stopEngine() {
 	if (pBackBuffer_) {
 		pBackBuffer_->Release();
@@ -49,6 +39,13 @@ int Renderer::stopEngine() {
 	return S_OK;
 }
 
+/*
+Summary:
+	Resets the device to switch between fullscreen and windowed modes.  All Direct3D resources must be released before this function is called.
+Params: 
+	model: The program state model containing the new display information.
+Return: -
+*/
 void Renderer::ChangeDisplayMode(const Model& model) {
 	if (model.getFullscreen())
 		OutputDebugString(TEXT("ChangeDisplayMode -- going to fullscreen\n"));
@@ -74,6 +71,18 @@ void Renderer::ChangeDisplayMode(const Model& model) {
 	Errors::ErrorCheck(r, TEXT("ChangeDisplayMode couldn't reacquire the backbuffer"));
 }
 
+/*
+Summary:
+	Creates a new Direct3D Device based on Renderer::parameters
+Params: 
+	hWndTarget: Handle to the win32 window that will be rendered into
+	Width: the width of the buffer in pixels
+	Height: the height of the buffer in pixels
+	bWindowed: true for windowed mode, false for fullscreen mode
+	FullScreenFormat: The buffer format to use
+	ppDevice: the output pointer representing the Direct3D device.
+Return: S_OK on success
+*/
 int Renderer::InitDirect3DDevice(HWND hWndTarget, int Width, int Height, BOOL bWindowed, D3DFORMAT FullScreenFormat, LPDIRECT3DDEVICE9* ppDevice) {
 	HRESULT r = 0;
 
@@ -100,6 +109,13 @@ int Renderer::InitDirect3DDevice(HWND hWndTarget, int Width, int Height, BOOL bW
 	return S_OK;
 }
 
+
+/*
+Summary:
+	Constructor: creates a renderer by creating a COM object representing Direct3D 9.
+Params: -
+Return: -
+*/
 Renderer::Renderer() {
 	pD3D_ = Direct3DCreate9(D3D_SDK_VERSION);//COM object
 	if (pD3D_ == NULL) {
@@ -107,6 +123,12 @@ Renderer::Renderer() {
 	}
 }
 
+/*
+Summary:
+	Destructor: releases the COM object for Direct3D 9.
+Params: -
+Return: -
+*/
 Renderer::~Renderer() {
 	stopEngine();
 
@@ -116,11 +138,23 @@ Renderer::~Renderer() {
 	}
 }
 
-//Accessor for the render device
+/*
+Summary:
+	Accessor for the Direct3D device.
+Params: -
+Return: The active Direct3D device.
+*/
 LPDIRECT3DDEVICE9& Renderer::getDevice() {
 	return pDevice_;
 }
 
+/*
+Summary:
+	Draws all background, 3d, and foreground objects in the program model.
+Params: 
+	model: the program model containing information about the scene to render.
+Return: S_OK on success
+*/
 int Renderer::render(Model& model) {
 	if (!pDevice_) {
 		Errors::SetError(TEXT("Cannot render because there is no device"));
@@ -144,6 +178,13 @@ int Renderer::render(Model& model) {
 	return S_OK;
 }
 
+/*
+Summary:
+	Draws 2D background objects straight onto the back buffer
+Params: 
+	model: the program model containing information about the scene to render.
+Return: -
+*/
 void Renderer::PreScene2D(Model& model) {
 	//draw BG elements
 	for (auto d : model.getBG()) {
@@ -151,12 +192,26 @@ void Renderer::PreScene2D(Model& model) {
 	}
 }
 
+/*
+Summary:
+	Adds 3D objects to the render scene for rendering.
+Params:
+	model: the program model containing information about the scene to render.
+Return: -
+*/
 void Renderer::Scene3D(Model& model) {
 	for (auto& obj : model.get3D()) {
 		obj->draw(pDevice_);
 	}
 }
 
+/*
+Summary:
+	Draws 2D foreground objects straight onto the back buffer
+Params:
+	model: the program model containing information about the scene to render.
+Return: -
+*/
 void Renderer::PostScene2D(Model& model) {
 	//draw foreground elements
 	for (auto d : model.getFG()) {

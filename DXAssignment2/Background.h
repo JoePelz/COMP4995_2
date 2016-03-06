@@ -4,6 +4,7 @@
 #include "Errors.h"
 
 /* This class holds an image to display on a surface via the Drawable2D interface. */
+
 class Background : public Drawable2D {
 	/* Surface to hold the image to draw. */
 	LPDIRECT3DSURFACE9 background_;

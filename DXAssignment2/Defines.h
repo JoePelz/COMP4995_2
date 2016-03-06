@@ -13,6 +13,8 @@
 
 #define USE_FULLSCREEN 0    // 0 for windowed, 1 for fullscreen
 
+
+//Virtual keyboard keys, used by the controller
 #define VK_0 0x0030
 #define VK_1 0x0031
 #define VK_2 0x0032

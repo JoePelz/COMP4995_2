@@ -14,10 +14,8 @@
 #include <d3d9.h>
 #include <memory>
 
-/* The Controller class manages interactions between the model and the renderer.  
-	It handles input from the user and Windows messages. 
-	If this program did anything, this class would also ensure that the thing happened.
-*/
+/* The Controller class facilitates interactions between the user, the model, and the renderer. */
+
 class Controller {
 private:
 	//Handle to the application instance.

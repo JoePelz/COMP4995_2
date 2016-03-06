@@ -13,8 +13,9 @@
 typedef std::shared_ptr<Drawable3D> pDrawable3D;
 typedef std::shared_ptr<Light> pLight;
 
-/* This class represents the current state of the program. It stores all game state information 
-	and provides accessors and mutators as needed. 
+/* 
+This class represents the current state of the program. It stores all game state information 
+and provides accessors and mutators as needed. 
 */
 class Model {
 	/* Collection of renderable items to be layered behind the 3d scene. */
@@ -43,11 +44,10 @@ class Model {
 	bool fullscreen_;
 
 	/* The currently selected object. */
-	ITransform* selected_;
+	Transform3D* selected_;
 public:
-	Model();
-	~Model();
-
+	Model::Model() : frameRate_{ 1000 }, width_{ DEFAULT_WIDTH }, height_{ DEFAULT_HEIGHT }, fullscreen_{ USE_FULLSCREEN }, selected_{ &camera_ } { }
+	
 	/* Getter for frame rate. */
 	UINT getFrameRate() const;
 	/* Getter for frame time in milliseconds. */
@@ -65,18 +65,17 @@ public:
 	void setDisplayMode(int width, int height, bool fullscreen);
 
 	/* Add a drawable element to the background layer. */
-	void addBG(std::shared_ptr<Drawable2D> drawable);
+	inline void addBG(std::shared_ptr<Drawable2D> drawable) { bgLayers_.push_back(drawable); }
 	/* Get the list of background elements. */
-	const std::vector<std::shared_ptr<Drawable2D>>& getBG() const;
+	inline const std::vector<std::shared_ptr<Drawable2D>>& getBG() const { return bgLayers_; }
 	/* Empty the list of background elements. */
-	void clearBG();
+	inline void clearBG() { bgLayers_.clear(); }
 	/* Add a drawable element to the foreground layer. */
-	void addFG(std::shared_ptr<Drawable2D> drawable);
+	inline void addFG(std::shared_ptr<Drawable2D> drawable) { fgLayers_.push_back(drawable); }
 	/* Get the list of foreground elements. */
-	const std::vector<std::shared_ptr<Drawable2D>>& getFG() const;
+	inline const std::vector<std::shared_ptr<Drawable2D>>& getFG() const { return fgLayers_; }
 	/* Empty the list of foreground elements. */
-	void clearFG();
-
+	inline void clearFG() { bgLayers_.clear(); }
 
 	inline void add3D(pDrawable3D drawable) { polyLayers_.push_back(drawable); }
 	inline const auto& get3D() const { return polyLayers_; }
@@ -89,8 +88,8 @@ public:
 	/* Get the camera object. */
 	inline Camera& Model::getCamera() { return camera_; }
 	/* Sets the currently selected object's transform controls. */
-	inline void setSelection(ITransform* sel) { selected_ = sel; }
+	inline void setSelection(Transform3D* sel) { selected_ = sel; }
 	/* Get the currently selected object's transform controls. */
-	inline ITransform* getSelection() { return selected_; }
+	inline Transform3D* getSelection() { return selected_; }
 };
 

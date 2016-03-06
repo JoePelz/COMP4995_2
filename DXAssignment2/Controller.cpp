@@ -1,44 +1,84 @@
 #include "Controller.h"
 
+/*
+Summary:
+	Constructor. creates all asset objects, hard-coded, and adds them to the appropriate collections.
+Params: hInstance: the current instance of the running program.
+Return: -
+*/
 Controller::Controller(HINSTANCE hInstance)
 	: hInstance(hInstance) {
+	//little center cube
 	Cube* c = new Cube();
 	pDrawable3D myObj(c);
 	gameModel.add3D(myObj);
 
+	//Big floor cube
 	c = new Cube();
 	c->setPosition({ 0.0f, -0.5f, 0.0f });
 	c->setScale({ 10.0f, 1.0f, 10.0f });
 	pDrawable3D myObj2(c);
 	gameModel.add3D(myObj2);
 
+	//Viggen retrieved from http://www.sandbox.de/osg/ 
 	Mesh* m = new Mesh(TEXT("Viggen.x"));
 	m->setPosition({ 2.0f, 0.5f, 0.0f });
 	m->setScale({ 2.0f, 2.0f, 2.0f });
 	pDrawable3D myMesh(m);
 	gameModel.add3D(myMesh);
 
-	m = new Mesh(TEXT("Viggen.x"));
+	//box.x manually typed (text format and all...)
+	m = new Mesh(TEXT("box.x"));
 	m->setPosition({ -2.0f, 0.5f, 0.0f });
-	m->setScale({ 2.0f, 2.0f, 2.0f });
+	m->setScale({ 0.5f, 0.5f, 0.5f });
 	pDrawable3D myMesh2(m);
 	gameModel.add3D(myMesh2);
 
 	pLight myLight1(new Light(D3DLIGHT_DIRECTIONAL));
-	myLight1->setPosition(0, 5, 0);
+	myLight1->setDirection({ 1.0f, -0.5f, 0.0f });
 	gameModel.addLight(myLight1);
 
+	pLight myLight2(new Light(D3DLIGHT_POINT));
+	myLight2->setPosition(0, 2, 0);
+	gameModel.addLight(myLight2);
+
+	pLight myLight3(new Light(D3DLIGHT_SPOT));
+	myLight3->setPosition(2.0f, 5.0f, 0.0f);
+	myLight3->setDirection({ 0.0f, -1.0f, 0.0f });
+	gameModel.addLight(myLight3);
 }
 
+
+/*
+Summary:
+	Destructor. Shuts down the 3d engine.
+Params: -
+Return: -
+*/
 Controller::~Controller() {
 	GameShutdown();
 }
 
+/*
+Summary:
+	Set the handle to the window this controller is meant to work within.
+Params: 
+	newHWnd the handle to the window for this controller to work within.
+Return: -
+*/
 void Controller::setHWnd(const HWND newHWnd) {
 	hWnd = newHWnd;
 }
 
-//Static
+/*
+Summary: static function to act as WNDPROC handling messages from the win32 system. Forwards input messages to Controller:: member functions.
+Params: 
+	hWnd: Handle to the window the message is for.
+	uMessage: Numeric message id identifying what happened.
+	wParam: additional message-specific data
+	lParam: additional message-specific data
+Return: 0 if message is handled. 
+*/
 long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam) {
 	LPCREATESTRUCT cs;
 	static Controller* ctrl;
@@ -99,6 +139,15 @@ long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LP
 	return DefWindowProc(hWnd, uMessage, wParam, lParam);
 }
 
+
+/*
+Summary:
+	Callback for mouse button presses. Updates input state object.
+Params:
+	lParam: the x and y coordinates of the mouse at time of button pressing. Access members by GET_X_LPARAM and GET_Y_LPARAM macros.
+	btn: The button that was pressed where 0 is the left click, 1 is middle click, 2 is right click.
+Return: -
+*/
 void Controller::MouseDown(LPARAM lParam, int btn) {
 	input.mpos.x = GET_X_LPARAM(lParam);
 	input.mpos.y = GET_Y_LPARAM(lParam);
@@ -108,12 +157,13 @@ void Controller::MouseDown(LPARAM lParam, int btn) {
 		input.mbutton = true;
 	else if (btn == 2)
 		input.rbutton = true;
-	//Errors::SetError(TEXT("Mouse down at (%d, %d)"), xPos, yPos);
 }
 
 /*
-Summary: MouseMove captures mouse movement events that occurs but only while the left mouse button is down.
-Params: lParam holds the coordinates of the mouse in client window space. Access values via GET_X_LPARAM(lParam) and GET_Y_LPARAM(lParam) macros.
+Summary: 
+	Callback for mouse motion. Updates input state object
+Params: 
+	lParam holds the coordinates of the mouse in client window space. Access values via GET_X_LPARAM(lParam) and GET_Y_LPARAM(lParam) macros.
 Return: -
 */
 void Controller::MouseMove(LPARAM lParam) {
@@ -127,6 +177,14 @@ void Controller::MouseMove(LPARAM lParam) {
 	input.mpos.y = GET_Y_LPARAM(lParam);
 }
 
+/*
+Summary:
+	Callback for mouse button release. Updates input state object.
+Params:
+	lParam holds the coordinates of the mouse in client window space. Access values via GET_X_LPARAM(lParam) and GET_Y_LPARAM(lParam) macros.
+	btn: The button that was pressed where 0 is the left click, 1 is middle click, 2 is right click.
+Return: -
+*/
 void Controller::MouseUp(LPARAM lParam, int btn) {
 	if (btn == 0)
 		input.lbutton = false;
@@ -136,7 +194,15 @@ void Controller::MouseUp(LPARAM lParam, int btn) {
 		input.rbutton = false;
 }
 
+/*
+Summary:
+	Callback for keypress events. Updates input state object.
+Params:
+	wParam holds which key was pressed. Compare with VK_* and see defines.h for some values.
+Return: true if the keypress is handled
+*/
 bool Controller::KeyDown(WPARAM wParam) {
+	DWORD temp;
 	switch (wParam) {
 	case VK_F:
 		try {
@@ -183,102 +249,104 @@ bool Controller::KeyDown(WPARAM wParam) {
 	case VK_4:
 		gameModel.setSelection(gameModel.get3D()[3].get());
 		return true;
+	case VK_U: //toggle ambient light
+		renderEngine.getDevice()->GetRenderState(D3DRS_AMBIENT, &temp);
+		if (temp == D3DCOLOR_XRGB(128, 128, 128)) {
+			renderEngine.getDevice()->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(0, 0, 0));
+		} else {
+			renderEngine.getDevice()->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(128, 128, 128));
+		}
+		return true;
+	case VK_I: //toggle directional light
+		renderEngine.getDevice()->GetLightEnable(0, (BOOL*)&temp);
+		renderEngine.getDevice()->LightEnable(0, !temp);
+		return true;
+	case VK_O: //toggle point light
+		renderEngine.getDevice()->GetLightEnable(1, (BOOL*)&temp);
+		renderEngine.getDevice()->LightEnable(1, !temp);
+		return true;
+	case VK_P: //toggle spot light
+		renderEngine.getDevice()->GetLightEnable(2, (BOOL*)&temp);
+		renderEngine.getDevice()->LightEnable(2, !temp);
+		return true;
+
 	}
 
 	return false;
 }
 
+/*
+Summary:
+	Callback for key release events. Updates input state object.
+Params:
+	wParam holds which key was pressed. Compare with VK_* and see defines.h for some values.
+Return: true if the keypress is handled.
+*/
 bool Controller::KeyUp(WPARAM wParam) {
 	switch (wParam) {
 	case VK_W:
-		return input.key_w = false;
+		input.key_w = false;
+		return true;
 	case VK_S:
-		return input.key_s = false;
+		input.key_s = false;
+		return true;
 	case VK_A:
-		return input.key_a = false;
+		input.key_a = false;
+		return true;
 	case VK_D:
-		return input.key_d = false;
+		input.key_d = false;
+		return true;
 	case VK_E:
-		return input.key_e = false;
+		input.key_e = false;
+		return true;
 	case VK_C:
-		return input.key_c = false;
+		input.key_c = false;
+		return true;
 	}
 	return false;
 }
 
+/*
+Summary:
+	Callback for mouse wheel events. Also fires on finger zooming. Updates input state object.
+Params:
+	pos: holds the coordinates of the mouse in client window space. Access values via GET_X_LPARAM(lParam) and GET_Y_LPARAM(lParam) macros.
+	scroll: holds 120 * the number of mouse-wheel clicks that were scrolled. Access value with GET_WHEEL_DELTA_WPARAM(scroll) macro.
+Return: -
+*/
 void Controller::MouseWheel(LPARAM pos, WPARAM scroll) {
 	input.scrollAmount = GET_WHEEL_DELTA_WPARAM(scroll) / 120;
 }
 
+/*
+Summary:
+	Perform game engine and asset initialization.  Will throw exception if engine cannot be initialized.
+Params: -
+Return: -
+*/
 void Controller::GameStartup() {
 	renderEngine.startEngine(hWnd, gameModel);
 	initializeResources();
 }
 
+/*
+Summary:
+	Initialize (e.g. allocate) the resources for all assets within the Direct3D Device and set the render state
+Params: -
+Return: -
+*/
 void Controller::initializeResources() {
 	auto device = renderEngine.getDevice();
 
 	for (auto& obj : gameModel.get3D()) {
 		obj->initializeResources(device);
 	}
-	/*
 	for (auto& obj : gameModel.getLights()) {
 		obj->initializeResources(device);
 	}
-	*/
 
-	D3DLIGHT9 d3dLight;
-	HRESULT   hr;
-
-	// Initialize the structure.
-	ZeroMemory(&d3dLight, sizeof(d3dLight));
-
-	// Set up a white point light.
-	d3dLight.Type = D3DLIGHT_DIRECTIONAL;
-	d3dLight.Diffuse.r = 1.0f;
-	d3dLight.Diffuse.g = 1.0f;
-	d3dLight.Diffuse.b = 1.0f;
-	d3dLight.Ambient.r = 0.3f;
-	d3dLight.Ambient.g = 0.3f;
-	d3dLight.Ambient.b = 0.3f;
-	d3dLight.Specular.r = 1.0f;
-	d3dLight.Specular.g = 1.0f;
-	d3dLight.Specular.b = 1.0f;
-
-	d3dLight.Position.x = 0.0f;
-	d3dLight.Position.y = 1.5f;
-	d3dLight.Position.z = 0.0f;
-
-	d3dLight.Direction.x = 0.0f;
-	d3dLight.Direction.y = -1.0f;
-	d3dLight.Direction.z = 0.0f;
-
-	// Don't attenuate.
-	d3dLight.Attenuation0 = 1.0f;
-	d3dLight.Range = 2000.0f;
-
-	// Set the property information for the first light.
-	hr = device->SetLight(0, &d3dLight);
-	if (SUCCEEDED(hr))
-		// Handle Success
-		OutputDebugString(TEXT("light succeeded\n"));
-	else
-		// Handle failure
-		OutputDebugString(TEXT("light failed\n"));
-
-	hr = device->LightEnable(0, true);
-	if (SUCCEEDED(hr))
-		// Handle Success
-		OutputDebugString(TEXT("light enable succeeded\n"));
-	else
-		// Handle failure
-		OutputDebugString(TEXT("light enable failed\n"));
-
-	
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	device->SetRenderState(D3DRS_LIGHTING, TRUE);
-	//device->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(128, 128, 128));
-
 
 	//Initialize frame counter
 	gameModel.initFrameTimer();
@@ -296,6 +364,12 @@ void Controller::initializeResources() {
 	gameModel.addBG(drawable);
 }
 
+/*
+Summary:
+	Release and free all game resources so the engine can be reset or shut down safely.
+Params: -
+Return: -
+*/
 void Controller::releaseResources() {
 	gameModel.clearBG();
 	gameModel.clearFG();
@@ -303,8 +377,17 @@ void Controller::releaseResources() {
 	for (auto& obj : gameModel.get3D()) {
 		obj->releaseResources();
 	}
+	for (auto& obj : gameModel.getLights()) {
+		obj->releaseResources();
+	}
 }
 
+/*
+Summary:
+	Main game loop. Updates the model, renders the frame, updates the frame timer, and checks for the escape key (to quit).
+Params: -
+Return: -
+*/
 void Controller::GameLoop() {
 	updateModel(input, gameModel);
 	renderEngine.render(gameModel);
@@ -315,8 +398,16 @@ void Controller::GameLoop() {
 	}
 }
 
+/*
+Summary:
+	Performs any game state updates based on the current state of the input for this frame, and the amount of time elapsed.
+Params:
+	input: The current state of the input devices (keyboard, mouse)
+	model: the current state of the game (e.g. transformation matrices, lights on/off)
+Return: -
+*/
 void Controller::updateModel(Input& input, Model& model) {
-	ITransform* sel = model.getSelection();
+	Transform3D* sel = model.getSelection();
 	float ms = model.getFrameTime();
 	Camera& cam = model.getCamera();
 
@@ -367,11 +458,24 @@ void Controller::updateModel(Input& input, Model& model) {
 	}
 }
 
+/*
+Summary:
+	Shuts down the engine.  Releases hardware and video resources, then shutdown down the engine.
+Params: -
+Return: -
+*/
 void Controller::GameShutdown() {
 	releaseResources();
 	renderEngine.stopEngine();
 }
 
+/*
+Summary:
+	Exits the program as soon as possible. 
+Params:
+	errorCode: The code to exit with.
+Return: -
+*/
 void Controller::Abort(int errorCode) {
 	GameShutdown();
 	PostMessage(hWnd, WM_DESTROY, errorCode, errorCode);

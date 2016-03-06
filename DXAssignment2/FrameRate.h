@@ -3,7 +3,10 @@
 #include "Model.h"
 #include <sstream>
 
-/* 2D element, writes the frame rate onto the screen. */
+/* 
+FrameRate is a 2D drawable object that writes the frame rate onto the screen. 
+*/
+
 class FrameRate : public TextWriter {
 	const Model* model_;
 public:
@@ -16,7 +19,7 @@ public:
 		 model: the game model holding the frame rate information to display 
 	*/
 	FrameRate(LPDIRECT3DDEVICE9& device, const TCHAR* path, int fontWidth, int fontHeight, Model* model);
-	~FrameRate();
+
 	//Writes the frame rate, and time/frame onto the given back buffer.
 	virtual int draw(LPDIRECT3DSURFACE9 pBackSurf) override;
 };

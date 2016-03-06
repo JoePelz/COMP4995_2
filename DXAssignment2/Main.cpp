@@ -3,10 +3,18 @@
 #include <windows.h>
 #include "Controller.h"
 
-/* Program entry point (win32)
-	Registers and instantiates a window to contain the DirectX viewport.
-	Runs the main message loop, but hands control off to the Controller class.
- */
+/*
+Summary:
+	Program entry point.  
+	Registers and instantiates a window to contain the DirectX viewport. 
+	Triggers the main message loop and hands control off to the controller class.
+Params: 
+	hInstance: The running program instance
+	hPrevInstance: ignored.
+	pstrCmdLine: Any command line arguments as a unicode string.
+	iCmdShow: flag determining (minimized|maximized|shown)
+Return: Exit code of the program.
+*/
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pstrCmdLine, int iCmdShow) {
 	HWND hWnd;
 	MSG msg;

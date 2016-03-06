@@ -3,6 +3,8 @@
 #include "Drawable3D.h"
 #include "Errors.h"
 
+//Flexible Vertex Format definition for position, normals, and color
+
 #define ColouredNormalVertex_FLAGS D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE
 #define ColouredNormalVertex_STRIDE 28
 struct ColouredNormalVertex {
@@ -11,15 +13,17 @@ struct ColouredNormalVertex {
 	DWORD colour;
 };
 
-class Cube :
-	public Drawable3D{
-	IDirect3DVertexBuffer9* vertexBuffer_;
-	D3DMATERIAL9 material_;
+/*
+The Cube class represents a 3D Cube with colored-vertex sides that can be rendered.
+*/
+
+class Cube : public Drawable3D {
+	IDirect3DVertexBuffer9* vertexBuffer_; //pointer to buffer within the Direct3D device.
 public:
 	void initializeResources(LPDIRECT3DDEVICE9& device) override;
 	void releaseResources() override;
 	void draw(LPDIRECT3DDEVICE9& device) override;
-	Cube();
-	~Cube();
+	Cube() = default;
+	~Cube() = default;
 };
 

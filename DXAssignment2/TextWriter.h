@@ -8,6 +8,11 @@
 #include "Errors.h"
 #include "Drawable2D.h"
 
+/*
+The TextWriter class will write arbitrary ascii text on the screen 
+using a bitmapped font supplied during construction.
+*/
+
 class TextWriter : public Drawable2D {
 	LPDIRECT3DSURFACE9 alphabet_; //surface to hold the loaded font image
 	int charWidth_;     //The width of 1 character in the font image

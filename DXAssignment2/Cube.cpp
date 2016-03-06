@@ -1,11 +1,12 @@
 #include "Cube.h"
 
-Cube::Cube() {
-}
-
-Cube::~Cube() {
-}
-
+/*
+Summary:
+	Creates a cube in device memory for rendering purposes.
+Params: 
+	device: The direct3D device to load a cube onto.
+Return: -
+*/
 void Cube::initializeResources(LPDIRECT3DDEVICE9 & device) {
 	
 	ColouredNormalVertex vertices[] = {
@@ -55,22 +56,14 @@ void Cube::initializeResources(LPDIRECT3DDEVICE9 & device) {
 	Errors::ErrorCheck(r, TEXT("Initialize resources failed to get a vertexBuffer lock"));
 	memcpy(bufferMemory, vertices, sizeof(vertices));
 	vertexBuffer_->Unlock();
-
-	
-	ZeroMemory(&material_, sizeof(D3DMATERIAL9));
-
-	//setup material
-	material_.Diffuse.r = 1.0f;
-	material_.Diffuse.g = 0.0f;
-	material_.Diffuse.b = 0.0f;
-	material_.Diffuse.a = 1.0f;
-	material_.Ambient.r = 1.0f;
-	material_.Ambient.g = 1.0f;
-	material_.Ambient.b = 0.0f;
-	material_.Ambient.a = 1.0f;
-
 }
 
+/*
+Summary:
+	Releases this asset's device resources.
+Params: -
+Return: -
+*/
 void Cube::releaseResources() {
 	if (vertexBuffer_) {
 		vertexBuffer_->Release();
@@ -78,11 +71,17 @@ void Cube::releaseResources() {
 	}
 }
 
+/*
+Summary:
+	Sends the cube to be rendered at it's current transformed location.
+Params:
+	device: The direct3D device to draw in.
+Return: -
+*/
 void Cube::draw(LPDIRECT3DDEVICE9 & device) {
 	device->SetFVF(ColouredNormalVertex_FLAGS);
 	device->SetStreamSource(0, vertexBuffer_, 0, ColouredNormalVertex_STRIDE);
 
-	//device->SetMaterial(&material_);
 	device->SetRenderState(D3DRS_COLORVERTEX, true);
 
 	device->SetTransform(D3DTS_WORLD, &getTransform());

@@ -6,13 +6,15 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 
+/*
+The Renderer class is meant to interface with the Direct3D COM object by managing device context, backbuffers, and rendering.
+*/
+
 class Renderer {
-	D3DPRESENT_PARAMETERS parameters;
+	D3DPRESENT_PARAMETERS parameters; //Direct3D Device parameters
 	LPDIRECT3D9 pD3D_; //COM object
 	LPDIRECT3DDEVICE9 pDevice_; //graphics device
 	LPDIRECT3DSURFACE9 pBackBuffer_; //back buffer
-
-	HRESULT CreateViewport(const Model& model);
 
 	// Set up the Direct3D display, with a specific width, height, fullscreen mode, and more.
 	int InitDirect3DDevice(HWND hWndTarget, int Width, int Height, BOOL bWindowed, D3DFORMAT FullScreenFormat, LPDIRECT3DDEVICE9* ppDevice);

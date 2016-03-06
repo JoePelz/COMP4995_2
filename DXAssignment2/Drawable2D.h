@@ -8,7 +8,5 @@ class Drawable2D {
 public:
 	/* Draw this 2D element onto the provided backBuffer. */
 	virtual int draw(LPDIRECT3DSURFACE9 pBackSurf) { OutputDebugString(TEXT("Draw: Base implementation\n")); return S_OK; }
-	Drawable2D() {}
-	~Drawable2D() {}
 };
 
