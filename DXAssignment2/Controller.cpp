@@ -16,15 +16,14 @@ Controller::Controller(HINSTANCE hInstance)
 	pDrawable3D myMesh(m);
 	gameModel.add3D(myMesh);
 
-	//Tiger!
-	m = new Mesh(TEXT("Tiger.x"));
+	//Harrier jet, also from http://www.sandbox.de/osg/ 
+	m = new Mesh(TEXT("Harrier.x"));
 	m->setPosition({ 0.0f, 1.5f, 0.0f });
-	m->setScale({ 0.5f, 0.5f, 0.5f });
 	m->rotate({ 0, 1, 0 }, D3DX_PI / 2);
 	pDrawable3D myMesh1(m);
 	gameModel.add3D(myMesh1);
 
-	//box.x manually typed (text format and all...)
+	//box.x (written. Text format and all...)
 	m = new Mesh(TEXT("box.x"));
 	m->setPosition({ -2.0f, 0.5f, 0.0f });
 	m->setScale({ 0.5f, 0.5f, 0.5f });
