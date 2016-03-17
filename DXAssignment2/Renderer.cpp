@@ -161,7 +161,7 @@ int Renderer::render(Model& model) {
 		return E_FAIL;
 	}
 
-	pDevice_->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, CLEAR_COLOR, 1.0f, 0);
+	pDevice_->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, CLEAR_COLOR, 1.0f, 0);
 
 	PreScene2D(model);
 

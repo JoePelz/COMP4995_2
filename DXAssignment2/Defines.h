@@ -3,7 +3,11 @@
 #define DEFAULT_BITMAP "fields_small.bmp"   //The image to load for the background
 #define DEFAULT_WIDTH 640                    //default width
 #define DEFAULT_HEIGHT 480                   //default height
-#define CLEAR_COLOR D3DCOLOR_XRGB(0, 0, 100)  //background color (if no image)
+
+//TODO: test if this matters for the stencil buffer (colored vs black)
+//#define CLEAR_COLOR D3DCOLOR_XRGB(0, 0, 100)  //background color (if no image)
+#define CLEAR_COLOR 0xff000000               //background color (if no image)
+
 #define FRAME_RATE_SMOOTHING 50              //how many frames to average over during frame rate display
 #define SENSITIVITY 50                       //How responsive the program is to input (e.g. translating)
 

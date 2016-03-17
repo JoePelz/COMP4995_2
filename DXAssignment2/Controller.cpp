@@ -373,16 +373,16 @@ void Controller::initializeResources() {
 	for (auto& obj : gameModel.getLights()) {
 		obj->initializeResources(device);
 	}
-
-	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-	device->SetRenderState(D3DRS_LIGHTING, TRUE);
-
 	for (auto& obj : gameModel.getBG()) {
 		obj->initializeResources(device);
 	}
 	for (auto& obj : gameModel.getFG()) {
 		obj->initializeResources(device);
 	}
+
+	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	device->SetRenderState(D3DRS_LIGHTING, TRUE);
+	device->SetRenderState(D3DRS_STENCILENABLE, TRUE);
 }
 
 /*
