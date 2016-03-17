@@ -9,6 +9,24 @@ Return: -
 Controller::Controller(HINSTANCE hInstance)
 	: hInstance(hInstance) {
 
+	//============================================================
+	//                        2D Elements
+	//============================================================
+	FrameRate* fr = new FrameRate(TEXT("font.bmp"), 10, 12, &gameModel);
+	gameModel.initFrameTimer();
+	fr->setPosition(10, 10);
+	fr->setTransparentColor(D3DCOLOR_ARGB(0, 255, 0, 255));
+	pDrawable2D drawableText(fr);
+	gameModel.addFG(drawableText);
+
+	//Initialize the background image
+	Background* bg = new Background(TEXT(DEFAULT_BITMAP));
+	std::shared_ptr<Drawable2D> drawable(bg);
+	gameModel.addBG(drawable);
+
+	//============================================================
+	//                        3D Geometry
+	//============================================================
 	//Viggen retrieved from http://www.sandbox.de/osg/ 
 	Mesh* m = new Mesh(TEXT("Viggen.x"));
 	m->setPosition({ 2.0f, 0.5f, 0.0f });
@@ -42,6 +60,9 @@ Controller::Controller(HINSTANCE hInstance)
 	pDrawable3D myObj2(c);
 	gameModel.add3D(myObj2);
 
+	//============================================================
+	//                        Lights
+	//============================================================
 	pLight myLight1(new Light(D3DLIGHT_DIRECTIONAL));
 	myLight1->setDirection({ 1.0f, -0.5f, 0.0f });
 	gameModel.addLight(myLight1);
@@ -356,20 +377,12 @@ void Controller::initializeResources() {
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	device->SetRenderState(D3DRS_LIGHTING, TRUE);
 
-	//Initialize frame counter
-	gameModel.initFrameTimer();
-	FrameRate* tw = new FrameRate(renderEngine.getDevice(), TEXT("font.bmp"), 10, 12, &gameModel);
-	tw->setPosition(10, 10);
-	tw->setTransparentColor(D3DCOLOR_ARGB(0, 255, 0, 255));
-	std::shared_ptr<Drawable2D> drawableText(tw);
-	gameModel.addFG(drawableText);
-
-
-	//Initialize the background image
-	Background* bg = new Background(renderEngine.getDevice());
-	bg->setImage(TEXT(DEFAULT_BITMAP));
-	std::shared_ptr<Drawable2D> drawable(bg);
-	gameModel.addBG(drawable);
+	for (auto& obj : gameModel.getBG()) {
+		obj->initializeResources(device);
+	}
+	for (auto& obj : gameModel.getFG()) {
+		obj->initializeResources(device);
+	}
 }
 
 /*
@@ -386,6 +399,12 @@ void Controller::releaseResources() {
 		obj->releaseResources();
 	}
 	for (auto& obj : gameModel.getLights()) {
+		obj->releaseResources();
+	}
+	for (auto& obj : gameModel.getBG()) {
+		obj->releaseResources();
+	}
+	for (auto& obj : gameModel.getFG()) {
 		obj->releaseResources();
 	}
 }

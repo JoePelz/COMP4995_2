@@ -10,6 +10,7 @@
 #include <vector>
 #include <memory>
 
+typedef std::shared_ptr<Drawable2D> pDrawable2D;
 typedef std::shared_ptr<Drawable3D> pDrawable3D;
 typedef std::shared_ptr<Light> pLight;
 

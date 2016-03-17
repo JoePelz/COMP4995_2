@@ -11,8 +11,8 @@ Params:
 	model: the game model holding the frame rate information to display
 Return: -
 */
-FrameRate::FrameRate(LPDIRECT3DDEVICE9& device, const TCHAR* path, int fontWidth, int fontHeight, Model* model)
-	: TextWriter(device, path, fontWidth, fontHeight), model_(model) { }
+FrameRate::FrameRate(const TCHAR* path, int fontWidth, int fontHeight, Model* model)
+	: TextWriter(path, fontWidth, fontHeight), model_(model) { }
 
 /*
 Summary:
@@ -21,11 +21,10 @@ Params:
 	pBackSurf: the buffer to draw onto
 Return: -
 */
-int FrameRate::draw(LPDIRECT3DSURFACE9 pBackSurf) {
+int FrameRate::draw(LPDIRECT3DDEVICE9& device, LPDIRECT3DSURFACE9 pBackSurf) {
 	std::ostringstream os;
 	os << "fps: " << model_->getFrameRate() << "\ntime: " << model_->getFrameTime() << "ms";
 	setText(os.str());
-	TextWriter::draw(pBackSurf);
-
+	TextWriter::draw(device, pBackSurf);
 	return S_OK;
 }

@@ -188,7 +188,7 @@ Return: -
 void Renderer::PreScene2D(Model& model) {
 	//draw BG elements
 	for (auto d : model.getBG()) {
-		d->draw(pBackBuffer_);
+		d->draw(pDevice_, pBackBuffer_);
 	}
 }
 
@@ -215,6 +215,6 @@ Return: -
 void Renderer::PostScene2D(Model& model) {
 	//draw foreground elements
 	for (auto d : model.getFG()) {
-		d->draw(pBackBuffer_);
+		d->draw(pDevice_, pBackBuffer_);
 	}
 }
