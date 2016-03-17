@@ -98,7 +98,7 @@ int Renderer::InitDirect3DDevice(HWND hWndTarget, int Width, int Height, BOOL bW
 	parameters.hDeviceWindow = hWndTarget;
 	parameters.Windowed = bWindowed;
 	parameters.EnableAutoDepthStencil = TRUE;
-	parameters.AutoDepthStencilFormat = D3DFMT_D16;
+	parameters.AutoDepthStencilFormat = D3DFMT_D24S8;
 	parameters.FullScreen_RefreshRateInHz = 0;//default refresh rate
 	parameters.PresentationInterval = bWindowed ? 0 : D3DPRESENT_INTERVAL_IMMEDIATE;
 	parameters.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
