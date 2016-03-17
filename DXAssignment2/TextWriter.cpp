@@ -6,21 +6,20 @@
 Summary:
 	Constructor: Create a TextWriter based on the given ascii font image.
 Params: 
-	device: the device to draw in
 	path: the path to the ascii image
 	fontWidth: the width of a character in the font image
 	fontHeight: the height of a character in the font image
 Return: -
 */
-TextWriter::TextWriter(LPDIRECT3DDEVICE9& device, const TCHAR* path, int fontWidth, int fontHeight)
-	: alphabet_(NULL),
-	charWidth_(fontWidth),
-	charHeight_(fontHeight),
-	imgWidth_(0),
-	imgHeight_(0),
-	charsPerRow_(0)
-{
-	LoadImageToSurface(device, path);
+TextWriter::TextWriter(const TCHAR* path, int fontWidth, int fontHeight)
+	: alphabet_{ NULL },
+	path_{ path },
+	charWidth_{ fontWidth },
+	charHeight_{ fontHeight },
+	imgWidth_{ 0 },
+	imgHeight_{ 0 },
+	charsPerRow_{ 0 }
+{ 
 }
 
 /*
@@ -30,8 +29,7 @@ Params: -
 Return: -
 */
 TextWriter::~TextWriter() {
-	if (alphabet_ != NULL)
-		alphabet_->Release();
+	releaseResources();
 }
 
 /*
@@ -237,7 +235,7 @@ Params:
 	pBackSurf: the surface to draw onto.
 Return: -
 */
-int TextWriter::draw(LPDIRECT3DSURFACE9 pBackSurf) {
+int TextWriter::draw(LPDIRECT3DDEVICE9& device, LPDIRECT3DSURFACE9 pBackSurf) {
 	HRESULT hr;
 	D3DLOCKED_RECT LockedRect;//locked area of display memory(buffer really) we are drawing to
 	DWORD* pData;
@@ -267,4 +265,28 @@ int TextWriter::draw(LPDIRECT3DSURFACE9 pBackSurf) {
 	pData = 0;
 
 	return S_OK;
+}
+
+/*
+Summary:
+	Load the font image file into memory.
+Params:
+	device: the DX device to load textures for
+Return: -
+*/
+void TextWriter::initializeResources(LPDIRECT3DDEVICE9& device) {
+	LoadImageToSurface(device, path_);
+}
+
+/*
+Summary:
+	Release the font image file from memory
+Params: -
+Return: -
+*/
+void TextWriter::releaseResources() {
+	if (alphabet_) {
+		alphabet_->Release();
+		alphabet_ = 0;
+	}
 }

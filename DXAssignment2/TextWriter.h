@@ -15,6 +15,7 @@ using a bitmapped font supplied during construction.
 
 class TextWriter : public Drawable2D {
 	LPDIRECT3DSURFACE9 alphabet_; //surface to hold the loaded font image
+	const TCHAR* path_; //the path to the font image file
 	int charWidth_;     //The width of 1 character in the font image
 	int charHeight_;    //The height of 1 character in the font image
 	int imgWidth_;      //The width of the font image
@@ -32,7 +33,7 @@ class TextWriter : public Drawable2D {
 	void PrintChar(int x, int y, const char Character, DWORD* pDestData, int DestPitch) const;
 public:
 	//Instantiate a TextWriter to write with the given font image(path) with characters of the given size (fontWidth x fontHeight)
-	TextWriter(LPDIRECT3DDEVICE9& device, const TCHAR* path, int fontWidth, int fontHeight);
+	TextWriter(const TCHAR* path, int fontWidth, int fontHeight);
 	~TextWriter();
 	//Set the color to make transparent in the font
 	void setTransparentColor(D3DCOLOR colorKey);
@@ -43,6 +44,11 @@ public:
 	//Set the position on the screen to write at
 	void setPosition(int x, int y);
 	//Writes the current message (setText) onto the given back buffer.
-	virtual int draw(LPDIRECT3DSURFACE9 pBackSurf) override;
+	virtual int draw(LPDIRECT3DDEVICE9& device, LPDIRECT3DSURFACE9 pBackSurf) override;
+
+	//Load the font image file into memory
+	virtual void initializeResources(LPDIRECT3DDEVICE9& device);
+	//Release the font image file from memory
+	virtual void releaseResources();
 };
 
