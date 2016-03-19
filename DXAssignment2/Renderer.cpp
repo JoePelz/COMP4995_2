@@ -132,9 +132,8 @@ Renderer::Renderer() {
 	// x, y, z are the normal of the plane
 	// d is negative distance from origin
 	// 0, 1, 0, 100 is a plane that passes through (0, -100, 0)
-	D3DXPLANE plane = { 0, 1, 0, 0 }; 
+	D3DXPLANE plane = { 0, 1, 0, 0 };
 	D3DXMatrixReflect(&tempXForm_, &plane);
-	D3DXMATRIX tempXForm_;
 }
 
 /*
@@ -180,41 +179,13 @@ int Renderer::render(Model& model) {
 	PreScene2D(model);
 
 	pDevice_->BeginScene();
+	
 	Camera& cam = model.getCamera();
 	pDevice_->SetTransform(D3DTS_VIEW, &cam.getViewMatrix());
 	pDevice_->SetTransform(D3DTS_PROJECTION, &cam.getProjectionMatrix());
-	Scene3D(model);
-
-	// Enable stencil testing
-	pDevice_->SetRenderState(D3DRS_STENCILENABLE, TRUE);
-	pDevice_->Clear(0, NULL, D3DCLEAR_STENCIL, 0xff000000, 1.0f, 0); //stencil buffer is now all zeroes.
 	
-
-	//Always pass. Keep the existing zero unless it passes.
-	//In the event it passes, replace it with the reference value of 1.
-	pDevice_->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
-	//pDevice_->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP); //not needed. default behaviour
-	//pDevice_->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP); //not needed. default behaviour
-	pDevice_->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
-	pDevice_->SetRenderState(D3DRS_STENCILREF, 1); //reference value for stencil tests
-	pDevice_->SetRenderState(D3DRS_STENCILMASK, 1); //mask value for stencil test
-	
-	for (auto& obj : model.getMirror()) {
-		obj->draw(pDevice_);
-	}
-	//The stencil is now a 0/1 mask of this cube.
-	//For this next trick, do not modify the stencil buffer.
-	//pDevice_->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP); //default behaviour
-	//pDevice_->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP); //default behaviour
-	pDevice_->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_KEEP);
-	pDevice_->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_EQUAL);
-	pDevice_->Clear(0, NULL, D3DCLEAR_ZBUFFER, 0xff000000, 1.0f, 0); //Depthbuffer is now all reset.
-	D3DXMatrixMultiply(&tempView_, &model.getCamera().getViewMatrix(), &tempXForm_);
-	pDevice_->SetTransform(D3DTS_VIEW, &tempView_);
-	//pDevice_->SetTransform(D3DTS_VIEW, &cam.getReflectedView(tempXForm_));
-	Scene3D(model);
-	pDevice_->SetRenderState(D3DRS_STENCILENABLE, FALSE);
-
+	Scene3D(model, false);
+	RenderMirror(model);
 
 	pDevice_->EndScene();
 
@@ -222,6 +193,50 @@ int Renderer::render(Model& model) {
 
 	pDevice_->Present(NULL, NULL, NULL, NULL);//swap over buffer to primary surface
 	return S_OK;
+}
+
+void Renderer::RenderMirror(Model& model) {
+	//
+	// Draw Mirror quad to stencil buffer ONLY.  In this way
+	// only the stencil bits that correspond to the mirror will
+	// be on.  Therefore, the reflected teapot can only be rendered
+	// where the stencil bits are turned on, and thus on the mirror 
+	// only.
+	//
+	pDevice_->SetRenderState(D3DRS_STENCILENABLE, true);
+	pDevice_->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
+	pDevice_->SetRenderState(D3DRS_STENCILREF, 1);
+	pDevice_->SetRenderState(D3DRS_STENCILMASK, 1);
+	pDevice_->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);
+	pDevice_->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP);
+	pDevice_->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+
+	// disable writes to the depth and back buffers
+	pDevice_->SetRenderState(D3DRS_ZWRITEENABLE, false);
+
+	// draw the mirror to the stencil buffer
+	for (auto& obj : model.getMirror()) {
+		obj->draw(pDevice_, false);
+	}
+
+	// re-enable depth writes
+	pDevice_->SetRenderState(D3DRS_ZWRITEENABLE, true);
+
+	// only draw reflected teapot to the pixels where the mirror
+	// was drawn to.
+	pDevice_->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_EQUAL);
+	pDevice_->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_KEEP);
+
+	// clear depth buffer and blend the reflected teapot with the mirror
+	pDevice_->Clear(0, 0, D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+
+	// Finally, draw the reflected scene
+	pDevice_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+	Scene3D(model, true);
+
+	// Restore render states.
+	pDevice_->SetRenderState(D3DRS_STENCILENABLE, false);
+	pDevice_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 }
 
 /*
@@ -245,10 +260,15 @@ Params:
 	model: the program model containing information about the scene to render.
 Return: -
 */
-void Renderer::Scene3D(Model& model) {
-	for (auto& obj : model.get3D()) {
-		obj->draw(pDevice_);
-	}
+void Renderer::Scene3D(Model& model, bool bReflection) {
+	if (bReflection)
+		for (auto& obj : model.get3D()) {
+			obj->draw(pDevice_, &tempXForm_);
+		}
+	else
+		for (auto& obj : model.get3D()) {
+			obj->draw(pDevice_, NULL);
+		}
 }
 
 /*

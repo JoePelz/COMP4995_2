@@ -16,10 +16,11 @@ class Mesh : public Drawable3D {
 	D3DMATERIAL9*           pMeshMaterials; // Materials for our mesh
 	LPDIRECT3DTEXTURE9*     pMeshTextures;  // Textures for our mesh
 	DWORD                   dwNumMaterials = 0L;   // Number of mesh materials
+	D3DXMATRIX				net;
 public:
 	Mesh(TCHAR* filename) : path{ filename } { }
 	void initializeResources(LPDIRECT3DDEVICE9& device) override;
 	void releaseResources() override;
-	void draw(LPDIRECT3DDEVICE9& device) override;
+	void draw(LPDIRECT3DDEVICE9& device, D3DXMATRIX* xform) override;
 };
 

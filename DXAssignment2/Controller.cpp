@@ -43,8 +43,8 @@ Controller::Controller(HINSTANCE hInstance)
 
 	//box.x (written. Text format and all...)
 	m = new Mesh(TEXT("box.x"));
-	m->setPosition({ -2.0f, 0.5f, 0.0f });
-	m->setScale({ 0.5f, 0.05f, 0.5f });
+	m->setPosition({ 0.0f, 0.0f, -2.0f });
+	m->setScale({ 1.0f, 0.01f, 1.0f });
 	pDrawable3D myMesh2(m);
 	//NOTE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ This is now a mirror
 	gameModel.addMirror(myMesh2);
@@ -56,8 +56,8 @@ Controller::Controller(HINSTANCE hInstance)
 
 	//Big floor cube
 	c = new Cube();
-	c->setPosition({ 0.0f, -0.5f, 0.0f });
-	c->setScale({ 10.0f, 1.0f, 10.0f });
+	c->setPosition({ 0.0f, -50, 0.0f });
+	c->setScale({ 10.0f, 50.0f, 10.0f });
 	pDrawable3D myObj2(c);
 	gameModel.add3D(myObj2);
 
@@ -387,6 +387,7 @@ void Controller::initializeResources() {
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	device->SetRenderState(D3DRS_LIGHTING, TRUE);
 	device->SetRenderState(D3DRS_STENCILENABLE, TRUE);
+	device->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(128, 128, 128));
 }
 
 /*
