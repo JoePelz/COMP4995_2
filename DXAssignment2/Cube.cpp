@@ -83,6 +83,7 @@ void Cube::draw(LPDIRECT3DDEVICE9 & device) {
 	device->SetStreamSource(0, vertexBuffer_, 0, ColouredNormalVertex_STRIDE);
 
 	device->SetRenderState(D3DRS_COLORVERTEX, true);
+	device->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR1);
 
 	device->SetTransform(D3DTS_WORLD, &getTransform());
 	for (int i = 0; i < 6; i++) {

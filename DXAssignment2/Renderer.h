@@ -15,6 +15,8 @@ class Renderer {
 	LPDIRECT3D9 pD3D_; //COM object
 	LPDIRECT3DDEVICE9 pDevice_; //graphics device
 	LPDIRECT3DSURFACE9 pBackBuffer_; //back buffer
+	D3DXMATRIX tempView_;
+	D3DXMATRIX tempXForm_;
 
 	// Set up the Direct3D display, with a specific width, height, fullscreen mode, and more.
 	int InitDirect3DDevice(HWND hWndTarget, int Width, int Height, BOOL bWindowed, D3DFORMAT FullScreenFormat, LPDIRECT3DDEVICE9* ppDevice);

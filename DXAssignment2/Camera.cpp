@@ -59,6 +59,14 @@ void Camera::addRotation(float horizontal, float vertical) {
 	D3DXMatrixLookAtLH(&ViewMatrix, &position_, &lookAt, &up);
 }
 
+const D3DXMATRIXA16 & Camera::getReflectedView(const D3DXMATRIX & reflection) {
+	D3DXVECTOR3 r_pos = { position_.x, -position_.y, position_.z };
+	D3DXVECTOR3 r_look = { lookAt.x, -lookAt.y, lookAt.z };
+	D3DXVECTOR3 r_up = { up.x, -up.y, up.z };
+	D3DXMatrixLookAtLH(&ReflectedViewMatrix, &r_pos, &r_look, &r_up);
+	return ReflectedViewMatrix;
+}
+
 /*
 Summary:
 	Adjust the field of view (FOV) of the camera. Initial value is PI/4 radians.

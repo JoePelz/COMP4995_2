@@ -10,7 +10,7 @@ Controller::Controller(HINSTANCE hInstance)
 	: hInstance(hInstance) {
 
 	//============================================================
-	//                        2D Elements
+    //                        2D Elements
 	//============================================================
 	FrameRate* fr = new FrameRate(TEXT("font.bmp"), 10, 12, &gameModel);
 	gameModel.initFrameTimer();
@@ -44,9 +44,10 @@ Controller::Controller(HINSTANCE hInstance)
 	//box.x (written. Text format and all...)
 	m = new Mesh(TEXT("box.x"));
 	m->setPosition({ -2.0f, 0.5f, 0.0f });
-	m->setScale({ 0.5f, 0.5f, 0.5f });
+	m->setScale({ 0.5f, 0.05f, 0.5f });
 	pDrawable3D myMesh2(m);
-	gameModel.add3D(myMesh2);
+	//NOTE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ This is now a mirror
+	gameModel.addMirror(myMesh2);
 
 	//little center cube
 	Cube* c = new Cube();
@@ -276,7 +277,7 @@ bool Controller::KeyDown(WPARAM wParam) {
 		gameModel.setSelection(gameModel.get3D()[2].get());
 		return true;
 	case VK_4:
-		gameModel.setSelection(gameModel.get3D()[3].get());
+		gameModel.setSelection(gameModel.getMirror()[0].get());
 		return true;
 	case VK_U: //toggle ambient light
 		renderEngine.getDevice()->GetRenderState(D3DRS_AMBIENT, &temp);
@@ -370,6 +371,9 @@ void Controller::initializeResources() {
 	for (auto& obj : gameModel.get3D()) {
 		obj->initializeResources(device);
 	}
+	for (auto& obj : gameModel.getMirror()) {
+		obj->initializeResources(device);
+	}
 	for (auto& obj : gameModel.getLights()) {
 		obj->initializeResources(device);
 	}
@@ -396,6 +400,9 @@ void Controller::releaseResources() {
 	gameModel.clearFG();
 
 	for (auto& obj : gameModel.get3D()) {
+		obj->releaseResources();
+	}
+	for (auto& obj : gameModel.getMirror()) {
 		obj->releaseResources();
 	}
 	for (auto& obj : gameModel.getLights()) {
