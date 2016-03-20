@@ -81,8 +81,7 @@ Return: -
 */
 void Mesh::draw(LPDIRECT3DDEVICE9 & device, D3DXMATRIX* xform) {
 	if (xform) {
-		net = getTransform() * *xform;
-		device->SetTransform(D3DTS_WORLD, &net);
+		device->SetTransform(D3DTS_WORLD, &getReflection(*xform));
 	} else {
 		device->SetTransform(D3DTS_WORLD, &getTransform());
 	}

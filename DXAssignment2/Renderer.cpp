@@ -122,18 +122,12 @@ Renderer::Renderer() {
 		throw(TEXT("Could not create IDirect3D9 object"));
 	}
 
-
-	D3DXVECTOR3 pos = { 0, 10, 0 };
-	D3DXVECTOR3 lookat = { 0, -1, 0 };
-	D3DXVECTOR3 up = { 0, 0, 1 };
-	D3DXMatrixLookAtLH(&tempView_, &pos, &lookat, &up);
-
 	// D3DXPLANE {x, y, z, d} 
 	// x, y, z are the normal of the plane
 	// d is negative distance from origin
 	// 0, 1, 0, 100 is a plane that passes through (0, -100, 0)
-	D3DXPLANE plane = { 0, 1, 0, 0 };
-	D3DXMatrixReflect(&tempXForm_, &plane);
+	clipPlane_ = { 0, -1, 0, 0 };
+	D3DXMatrixReflect(&reflection_, &clipPlane_);
 }
 
 /*
@@ -184,8 +178,8 @@ int Renderer::render(Model& model) {
 	pDevice_->SetTransform(D3DTS_VIEW, &cam.getViewMatrix());
 	pDevice_->SetTransform(D3DTS_PROJECTION, &cam.getProjectionMatrix());
 	
-	Scene3D(model, false);
-	RenderMirror(model);
+	Scene3D(model, 0);
+	RenderMirrors(model);
 
 	pDevice_->EndScene();
 
@@ -195,7 +189,7 @@ int Renderer::render(Model& model) {
 	return S_OK;
 }
 
-void Renderer::RenderMirror(Model& model) {
+void Renderer::RenderMirrors(Model& model) {
 	//
 	// Draw Mirror quad to stencil buffer ONLY.  In this way
 	// only the stencil bits that correspond to the mirror will
@@ -230,9 +224,22 @@ void Renderer::RenderMirror(Model& model) {
 	// clear depth buffer and blend the reflected teapot with the mirror
 	pDevice_->Clear(0, 0, D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 
+	//reflect the lights
+	for (auto& light : model.getLights()) {
+		light->reflectLight(pDevice_, &reflection_);
+	}
+
 	// Finally, draw the reflected scene
 	pDevice_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
-	Scene3D(model, true);
+	pDevice_->SetClipPlane(0, clipPlane_);
+	pDevice_->SetRenderState(D3DRS_CLIPPLANEENABLE, D3DCLIPPLANE0); //enable clip plane
+	Scene3D(model, &reflection_);
+	pDevice_->SetRenderState(D3DRS_CLIPPLANEENABLE, 0); //disable clip plane again
+
+	//unreflect the lights
+	for (auto& light : model.getLights()) {
+		light->reflectLight(pDevice_, &reflection_);
+	}
 
 	// Restore render states.
 	pDevice_->SetRenderState(D3DRS_STENCILENABLE, false);
@@ -260,15 +267,10 @@ Params:
 	model: the program model containing information about the scene to render.
 Return: -
 */
-void Renderer::Scene3D(Model& model, bool bReflection) {
-	if (bReflection)
-		for (auto& obj : model.get3D()) {
-			obj->draw(pDevice_, &tempXForm_);
-		}
-	else
-		for (auto& obj : model.get3D()) {
-			obj->draw(pDevice_, NULL);
-		}
+void Renderer::Scene3D(Model& model, D3DXMATRIX* xform) {
+	for (auto& obj : model.get3D()) {
+		obj->draw(pDevice_, xform);
+	}
 }
 
 /*

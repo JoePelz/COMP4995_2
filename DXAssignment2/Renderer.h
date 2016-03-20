@@ -15,8 +15,8 @@ class Renderer {
 	LPDIRECT3D9 pD3D_; //COM object
 	LPDIRECT3DDEVICE9 pDevice_; //graphics device
 	LPDIRECT3DSURFACE9 pBackBuffer_; //back buffer
-	D3DXMATRIX tempView_;
-	D3DXMATRIX tempXForm_;
+	D3DXMATRIX reflection_; //reflection matrix
+	D3DXPLANE clipPlane_; //clip plane for reflections
 
 	// Set up the Direct3D display, with a specific width, height, fullscreen mode, and more.
 	int InitDirect3DDevice(HWND hWndTarget, int Width, int Height, BOOL bWindowed, D3DFORMAT FullScreenFormat, LPDIRECT3DDEVICE9* ppDevice);
@@ -25,8 +25,8 @@ class Renderer {
 	void PreScene2D(Model&);
 
 	// Render the 3D scene provided in Model
-	void Scene3D(Model&, bool bReflection);
-	void RenderMirror(Model&);
+	void Scene3D(Model&, D3DXMATRIX* xform);
+	void RenderMirrors(Model&);
 
 	// Handles 2D drawing on the frame after the 3D work is complete.
 	void PostScene2D(Model&);

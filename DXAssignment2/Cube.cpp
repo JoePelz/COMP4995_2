@@ -86,8 +86,7 @@ void Cube::draw(LPDIRECT3DDEVICE9 & device, D3DXMATRIX* xform) {
 	device->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR1);
 
 	if (xform) {
-		D3DXMatrixMultiply(&net, &getTransform(), xform);
-		device->SetTransform(D3DTS_WORLD, &net);
+		device->SetTransform(D3DTS_WORLD, &getReflection(*xform));
 	} else {
 		device->SetTransform(D3DTS_WORLD, &getTransform());
 	}
