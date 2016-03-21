@@ -205,30 +205,29 @@ void Renderer::RenderMirrors(Model& model) {
 
 	// disable writes to the depth and back buffers
 	pDevice_->SetRenderState(D3DRS_ZWRITEENABLE, false);
-	//pDevice_->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
-	//pDevice_->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
-	//pDevice_->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 	for (int face = 0; face < 6; face++) {
 		pDevice_->SetRenderState(D3DRS_STENCILREF, face + 1);
 
-
 		// draw the mirror to the stencil buffer
-		mirror->draw(pDevice_, false, face);
+		mirror->drawFace(pDevice_, false, face);
 	}
 	
-	// re-enable depth and backbuffer writes
+	// re-enable depth writes
 	pDevice_->SetRenderState(D3DRS_ZWRITEENABLE, true);
-	//pDevice_->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
 
 	// clear depth buffer and blend the reflected teapot with the mirror
 	pDevice_->Clear(0, 0, D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+
 	// only draw reflection to the pixels where the mirror was drawn to.
 	pDevice_->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_EQUAL);
 	pDevice_->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_KEEP);
 	pDevice_->SetRenderState(D3DRS_CLIPPLANEENABLE, D3DCLIPPLANE0); //enable clip plane
 	pDevice_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 	for (int face = 0; face < 6; face++) {
+		//Only render over this face of the cube
 		pDevice_->SetRenderState(D3DRS_STENCILREF, face + 1);
+
+		//Acquire reflection info for this cube face
 		mirror->setFace(face);
 		R = &mirror->getFaceReflection();
 		clip = &mirror->getFacePlane();

@@ -5,8 +5,8 @@
 MirrorCube::MirrorCube() {
 	//material is Diffuse, Ambient, Specular, Emissive, Power(float
 	//colors are r, g, b, a
-	material_.Diffuse = { 0.5f, 0.5f, 0.5f, 1.0f };
-	material_.Ambient = { 0.5f, 0.5f, 0.5f, 1.0f };
+	material_.Diffuse =  { 0.0f, 0.0f, 0.0f, 1.0f };
+	material_.Ambient =  { 0.0f, 0.0f, 0.0f, 1.0f };
 	material_.Emissive = { 0.0f, 0.0f, 0.0f, 1.0f };
 	material_.Specular = { 0.0f, 0.0f, 0.0f, 1.0f };
 	material_.Power = 1.0f;
@@ -57,7 +57,7 @@ void MirrorCube::setFace(int face) {
 
 }
 
-void MirrorCube::draw(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX * xform, int face) {
+void MirrorCube::drawFace(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX * xform, int face) {
 	device->SetFVF(ColouredNormalVertex_FLAGS);
 	device->SetStreamSource(0, vertexBuffer_, 0, ColouredNormalVertex_STRIDE);
 	/*
