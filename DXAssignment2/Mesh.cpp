@@ -79,8 +79,12 @@ Params:
 	device: the Direct3D device to render in.
 Return: -
 */
-void Mesh::draw(LPDIRECT3DDEVICE9 & device) {
-	device->SetTransform(D3DTS_WORLD, &getTransform());
+void Mesh::draw(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX* xform) {
+	if (xform) {
+		device->SetTransform(D3DTS_WORLD, &getReflection(*xform));
+	} else {
+		device->SetTransform(D3DTS_WORLD, &getTransform());
+	}
 
 	for (DWORD i = 0; i<dwNumMaterials; i++) {
 		// Set the material and texture for this subset

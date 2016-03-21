@@ -10,6 +10,7 @@
 #include "Input.h"
 #include "Transform3D.h"
 #include "Cube.h"
+#include "MirrorCube.h"
 #include "Light.h"
 #include <d3d9.h>
 #include <memory>

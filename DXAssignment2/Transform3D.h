@@ -10,10 +10,11 @@ This includes position, rotation and scale, and excludes shearing.
 
 class Transform3D {
 protected:
-	D3DXMATRIXA16 xform_; //The net transformation matrix of an object
+	D3DXMATRIXA16 xform_; //The transformation matrix of this object in world space
 	D3DXVECTOR3 scale_; //This object's scale.
 	D3DXVECTOR3 position_; //This object's position.
 	D3DXQUATERNION  rotation_; //This object's rotation.
+	D3DXMATRIXA16 tnet_; //the final transform to render with.
 public:
 	//Construct a default transform at the origin with a scale of 1.0 and no rotation.
 	Transform3D() : scale_{ 1.0f, 1.0f, 1.0f }, rotation_{ 0, 1, 0, 0 } {}
@@ -43,6 +44,11 @@ public:
 	virtual const D3DXMATRIXA16& getTransform() { 
 		D3DXMatrixTransformation(&xform_, NULL, NULL, &scale_, NULL, &rotation_ , &position_);
 		return xform_;
+	}
+
+	virtual const D3DXMATRIXA16& getReflection(const D3DXMATRIX& reflection) {
+		D3DXMatrixMultiply(&tnet_, &getTransform(), &reflection);
+		return tnet_;
 	}
 };
 

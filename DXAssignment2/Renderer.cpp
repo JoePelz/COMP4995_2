@@ -98,7 +98,7 @@ int Renderer::InitDirect3DDevice(HWND hWndTarget, int Width, int Height, BOOL bW
 	parameters.hDeviceWindow = hWndTarget;
 	parameters.Windowed = bWindowed;
 	parameters.EnableAutoDepthStencil = TRUE;
-	parameters.AutoDepthStencilFormat = D3DFMT_D16;
+	parameters.AutoDepthStencilFormat = D3DFMT_D24S8;
 	parameters.FullScreen_RefreshRateInHz = 0;//default refresh rate
 	parameters.PresentationInterval = bWindowed ? 0 : D3DPRESENT_INTERVAL_IMMEDIATE;
 	parameters.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
@@ -161,21 +161,97 @@ int Renderer::render(Model& model) {
 		return E_FAIL;
 	}
 
-	pDevice_->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, CLEAR_COLOR, 1.0f, 0);
+	pDevice_->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, CLEAR_COLOR, 1.0f, 0);
 
 	PreScene2D(model);
 
 	pDevice_->BeginScene();
-	const Camera& cam = model.getCamera();
+	
+	Camera& cam = model.getCamera();
 	pDevice_->SetTransform(D3DTS_VIEW, &cam.getViewMatrix());
 	pDevice_->SetTransform(D3DTS_PROJECTION, &cam.getProjectionMatrix());
-	Scene3D(model);
+	
+	Scene3D(model, NULL);
+	RenderMirrors(model);
+
 	pDevice_->EndScene();
 
 	PostScene2D(model);
 
 	pDevice_->Present(NULL, NULL, NULL, NULL);//swap over buffer to primary surface
 	return S_OK;
+}
+
+void Renderer::RenderMirrors(Model& model) {
+	auto mirror = model.getMirror();
+	mirror->drawVerts(pDevice_, 0);
+	const D3DXMATRIX* R;
+	const D3DXPLANE* clip; //clip plane for reflections
+
+	pDevice_->SetRenderState(D3DRS_STENCILENABLE, true);
+	pDevice_->Clear(0, 0, D3DCLEAR_STENCIL, 0, 0, 0);
+	//
+	// Draw Mirror quad to stencil buffer ONLY.  In this way
+	// only the stencil bits that correspond to the mirror will
+	// be on.  Therefore, the reflected teapot can only be rendered
+	// where the stencil bits are turned on, and thus on the mirror 
+	// only.
+	//
+	pDevice_->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
+	pDevice_->SetRenderState(D3DRS_STENCILMASK, 0xFF);
+	pDevice_->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);
+	pDevice_->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP);
+	pDevice_->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+
+	// disable writes to the depth and back buffers
+	pDevice_->SetRenderState(D3DRS_ZWRITEENABLE, false);
+	for (int face = 0; face < 6; face++) {
+		pDevice_->SetRenderState(D3DRS_STENCILREF, face + 1);
+
+		// draw the mirror to the stencil buffer
+		mirror->drawFace(pDevice_, false, face);
+	}
+	
+	// re-enable depth writes
+	pDevice_->SetRenderState(D3DRS_ZWRITEENABLE, true);
+
+	// clear depth buffer and blend the reflected teapot with the mirror
+	pDevice_->Clear(0, 0, D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+
+	// only draw reflection to the pixels where the mirror was drawn to.
+	pDevice_->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_EQUAL);
+	pDevice_->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_KEEP);
+	pDevice_->SetRenderState(D3DRS_CLIPPLANEENABLE, D3DCLIPPLANE0); //enable clip plane
+	pDevice_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+	for (int face = 0; face < 6; face++) {
+		//Only render over this face of the cube
+		pDevice_->SetRenderState(D3DRS_STENCILREF, face + 1);
+
+		//Acquire reflection info for this cube face
+		mirror->setFace(face);
+		R = &mirror->getFaceReflection();
+		clip = &mirror->getFacePlane();
+
+		//reflect the lights
+		for (auto& light : model.getLights()) {
+			light->reflectLight(pDevice_, R);
+		}
+
+		// Finally, draw the reflected scene
+		pDevice_->SetClipPlane(0, (float*)clip);
+		Scene3D(model, R);
+
+		//unreflect the lights
+		for (auto& light : model.getLights()) {
+			light->reflectLight(pDevice_, R);
+		}
+
+	}
+	// Restore render states.
+	pDevice_->SetRenderState(D3DRS_STENCILENABLE, false);
+	pDevice_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	pDevice_->SetRenderState(D3DRS_CLIPPLANEENABLE, 0); //disable clip plane again
+
 }
 
 /*
@@ -199,9 +275,9 @@ Params:
 	model: the program model containing information about the scene to render.
 Return: -
 */
-void Renderer::Scene3D(Model& model) {
+void Renderer::Scene3D(Model& model, const D3DXMATRIX* xform) {
 	for (auto& obj : model.get3D()) {
-		obj->draw(pDevice_);
+		obj->draw(pDevice_, xform);
 	}
 }
 

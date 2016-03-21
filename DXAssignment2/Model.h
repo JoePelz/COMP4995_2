@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "Errors.h"
 #include "Light.h"
+#include "MirrorCube.h"
 #include <vector>
 #include <memory>
 
@@ -20,11 +21,13 @@ and provides accessors and mutators as needed.
 */
 class Model {
 	/* Collection of renderable items to be layered behind the 3d scene. */
-	std::vector<std::shared_ptr<Drawable2D>> bgLayers_;
+	std::vector<pDrawable2D> bgLayers_;
 	/* Collection of 3d renderable items to be rendered in the scene. */
 	std::vector<pDrawable3D> polyLayers_;
+	/* 3D Cubic mirror to be rendered in the scene. */
+	std::shared_ptr<MirrorCube> mirrorCube_;
 	/* Collection of renderable items to be layered ahead of the 3d scene. */
-	std::vector<std::shared_ptr<Drawable2D>> fgLayers_;
+	std::vector<pDrawable2D> fgLayers_;
 	/* Collection of D3D9 Lights to illuminate the scene. */
 	std::vector<pLight> lights_;
 	//The camera representing the players view
@@ -81,6 +84,9 @@ public:
 	inline void add3D(pDrawable3D drawable) { polyLayers_.push_back(drawable); }
 	inline const auto& get3D() const { return polyLayers_; }
 	inline void clear3D() { polyLayers_.clear(); }
+
+	inline const auto& getMirror() { return mirrorCube_; }
+	inline void setMirror(std::shared_ptr<MirrorCube> mirror) { mirrorCube_ = mirror; }
 
 	inline void addLight(pLight light) { lights_.push_back(light); }
 	inline const auto& getLights() const { return lights_; }

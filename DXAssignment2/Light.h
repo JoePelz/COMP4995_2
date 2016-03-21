@@ -20,6 +20,7 @@ public:
 
 	void initializeResources(LPDIRECT3DDEVICE9& device) override;
 	void releaseResources() override;
-	virtual void draw(LPDIRECT3DDEVICE9& device) {};
+	virtual void draw(LPDIRECT3DDEVICE9& device, const D3DXMATRIX* xform) {};
+	void reflectLight(LPDIRECT3DDEVICE9& device, const D3DXMATRIX* reflection);
 };
 

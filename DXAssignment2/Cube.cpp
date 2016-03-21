@@ -78,13 +78,18 @@ Params:
 	device: The direct3D device to draw in.
 Return: -
 */
-void Cube::draw(LPDIRECT3DDEVICE9 & device) {
+void Cube::draw(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX* xform) {
 	device->SetFVF(ColouredNormalVertex_FLAGS);
 	device->SetStreamSource(0, vertexBuffer_, 0, ColouredNormalVertex_STRIDE);
 
 	device->SetRenderState(D3DRS_COLORVERTEX, true);
+	device->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR1);
 
-	device->SetTransform(D3DTS_WORLD, &getTransform());
+	if (xform) {
+		device->SetTransform(D3DTS_WORLD, &getReflection(*xform));
+	} else {
+		device->SetTransform(D3DTS_WORLD, &getTransform());
+	}
 	for (int i = 0; i < 6; i++) {
 		device->DrawPrimitive(D3DPT_TRIANGLESTRIP, i * 4, 2);
 	}

@@ -10,7 +10,7 @@ Controller::Controller(HINSTANCE hInstance)
 	: hInstance(hInstance) {
 
 	//============================================================
-	//                        2D Elements
+    //                        2D Elements
 	//============================================================
 	FrameRate* fr = new FrameRate(TEXT("font.bmp"), 10, 12, &gameModel);
 	gameModel.initFrameTimer();
@@ -41,12 +41,12 @@ Controller::Controller(HINSTANCE hInstance)
 	pDrawable3D myMesh1(m);
 	gameModel.add3D(myMesh1);
 
-	//box.x (written. Text format and all...)
-	m = new Mesh(TEXT("box.x"));
-	m->setPosition({ -2.0f, 0.5f, 0.0f });
-	m->setScale({ 0.5f, 0.5f, 0.5f });
-	pDrawable3D myMesh2(m);
-	gameModel.add3D(myMesh2);
+	//Mirror Cube
+	MirrorCube* mc = new MirrorCube();
+	mc->setPosition({ 0.0f, 0.0f, -2.0f });
+	mc->setScale({ 1.0f, 1.0f, 1.0f });
+	std::shared_ptr<MirrorCube> myMC(mc);
+	gameModel.setMirror(myMC);
 
 	//little center cube
 	Cube* c = new Cube();
@@ -55,8 +55,8 @@ Controller::Controller(HINSTANCE hInstance)
 
 	//Big floor cube
 	c = new Cube();
-	c->setPosition({ 0.0f, -0.5f, 0.0f });
-	c->setScale({ 10.0f, 1.0f, 10.0f });
+	c->setPosition({ 0.0f, -50, 0.0f });
+	c->setScale({ 10.0f, 50.0f, 10.0f });
 	pDrawable3D myObj2(c);
 	gameModel.add3D(myObj2);
 
@@ -276,7 +276,7 @@ bool Controller::KeyDown(WPARAM wParam) {
 		gameModel.setSelection(gameModel.get3D()[2].get());
 		return true;
 	case VK_4:
-		gameModel.setSelection(gameModel.get3D()[3].get());
+		gameModel.setSelection(gameModel.getMirror().get());
 		return true;
 	case VK_U: //toggle ambient light
 		renderEngine.getDevice()->GetRenderState(D3DRS_AMBIENT, &temp);
@@ -370,19 +370,21 @@ void Controller::initializeResources() {
 	for (auto& obj : gameModel.get3D()) {
 		obj->initializeResources(device);
 	}
+	gameModel.getMirror()->initializeResources(device);
 	for (auto& obj : gameModel.getLights()) {
 		obj->initializeResources(device);
 	}
-
-	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-	device->SetRenderState(D3DRS_LIGHTING, TRUE);
-
 	for (auto& obj : gameModel.getBG()) {
 		obj->initializeResources(device);
 	}
 	for (auto& obj : gameModel.getFG()) {
 		obj->initializeResources(device);
 	}
+
+	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	device->SetRenderState(D3DRS_LIGHTING, TRUE);
+	device->SetRenderState(D3DRS_STENCILENABLE, TRUE);
+	device->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(128, 128, 128));
 }
 
 /*
@@ -398,6 +400,7 @@ void Controller::releaseResources() {
 	for (auto& obj : gameModel.get3D()) {
 		obj->releaseResources();
 	}
+	gameModel.getMirror()->releaseResources();
 	for (auto& obj : gameModel.getLights()) {
 		obj->releaseResources();
 	}
