@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "Errors.h"
 #include "Light.h"
+#include "MirrorCube.h"
 #include <vector>
 #include <memory>
 
@@ -23,8 +24,8 @@ class Model {
 	std::vector<pDrawable2D> bgLayers_;
 	/* Collection of 3d renderable items to be rendered in the scene. */
 	std::vector<pDrawable3D> polyLayers_;
-	/* Collection of mirrors to be rendered in the scene. */
-	std::vector<pDrawable3D> mirrorLayers_;
+	/* 3D Cubic mirror to be rendered in the scene. */
+	std::shared_ptr<MirrorCube> mirrorCube_;
 	/* Collection of renderable items to be layered ahead of the 3d scene. */
 	std::vector<pDrawable2D> fgLayers_;
 	/* Collection of D3D9 Lights to illuminate the scene. */
@@ -84,9 +85,8 @@ public:
 	inline const auto& get3D() const { return polyLayers_; }
 	inline void clear3D() { polyLayers_.clear(); }
 
-	inline void addMirror(pDrawable3D drawable) { mirrorLayers_.push_back(drawable); }
-	inline const auto& getMirror() const { return mirrorLayers_; }
-	inline void clearMirror() { mirrorLayers_.clear(); }
+	inline const auto& getMirror() { return mirrorCube_; }
+	inline void setMirror(std::shared_ptr<MirrorCube> mirror) { mirrorCube_ = mirror; }
 
 	inline void addLight(pLight light) { lights_.push_back(light); }
 	inline const auto& getLights() const { return lights_; }

@@ -41,13 +41,12 @@ Controller::Controller(HINSTANCE hInstance)
 	pDrawable3D myMesh1(m);
 	gameModel.add3D(myMesh1);
 
-	//box.x (written. Text format and all...)
-	m = new Mesh(TEXT("box.x"));
-	m->setPosition({ 0.0f, 0.0f, -2.0f });
-	m->setScale({ 1.0f, 0.01f, 1.0f });
-	pDrawable3D myMesh2(m);
-	//NOTE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ This is now a mirror
-	gameModel.addMirror(myMesh2);
+	//Mirror Cube
+	MirrorCube* mc = new MirrorCube();
+	mc->setPosition({ 0.0f, 0.0f, -2.0f });
+	mc->setScale({ 1.0f, 1.0f, 1.0f });
+	std::shared_ptr<MirrorCube> myMC(mc);
+	gameModel.setMirror(myMC);
 
 	//little center cube
 	Cube* c = new Cube();
@@ -277,7 +276,7 @@ bool Controller::KeyDown(WPARAM wParam) {
 		gameModel.setSelection(gameModel.get3D()[2].get());
 		return true;
 	case VK_4:
-		gameModel.setSelection(gameModel.getMirror()[0].get());
+		gameModel.setSelection(gameModel.getMirror().get());
 		return true;
 	case VK_U: //toggle ambient light
 		renderEngine.getDevice()->GetRenderState(D3DRS_AMBIENT, &temp);
@@ -371,9 +370,7 @@ void Controller::initializeResources() {
 	for (auto& obj : gameModel.get3D()) {
 		obj->initializeResources(device);
 	}
-	for (auto& obj : gameModel.getMirror()) {
-		obj->initializeResources(device);
-	}
+	gameModel.getMirror()->initializeResources(device);
 	for (auto& obj : gameModel.getLights()) {
 		obj->initializeResources(device);
 	}
@@ -403,9 +400,7 @@ void Controller::releaseResources() {
 	for (auto& obj : gameModel.get3D()) {
 		obj->releaseResources();
 	}
-	for (auto& obj : gameModel.getMirror()) {
-		obj->releaseResources();
-	}
+	gameModel.getMirror()->releaseResources();
 	for (auto& obj : gameModel.getLights()) {
 		obj->releaseResources();
 	}

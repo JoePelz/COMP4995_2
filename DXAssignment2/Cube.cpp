@@ -78,7 +78,7 @@ Params:
 	device: The direct3D device to draw in.
 Return: -
 */
-void Cube::draw(LPDIRECT3DDEVICE9 & device, D3DXMATRIX* xform) {
+void Cube::draw(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX* xform) {
 	device->SetFVF(ColouredNormalVertex_FLAGS);
 	device->SetStreamSource(0, vertexBuffer_, 0, ColouredNormalVertex_STRIDE);
 

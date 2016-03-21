@@ -53,7 +53,7 @@ void Light::releaseResources() {
 	--si_light;
 }
 
-void Light::reflectLight(LPDIRECT3DDEVICE9& device, D3DXMATRIX * reflection) {
+void Light::reflectLight(LPDIRECT3DDEVICE9& device, const D3DXMATRIX * reflection) {
 	//get and set position and direction
 	D3DXVECTOR3* pos = (D3DXVECTOR3 *)&light.Position;
 	D3DXVECTOR3* dir = (D3DXVECTOR3 *)&light.Direction;

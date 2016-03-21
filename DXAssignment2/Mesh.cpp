@@ -79,7 +79,7 @@ Params:
 	device: the Direct3D device to render in.
 Return: -
 */
-void Mesh::draw(LPDIRECT3DDEVICE9 & device, D3DXMATRIX* xform) {
+void Mesh::draw(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX* xform) {
 	if (xform) {
 		device->SetTransform(D3DTS_WORLD, &getReflection(*xform));
 	} else {
