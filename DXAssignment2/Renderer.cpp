@@ -184,47 +184,54 @@ int Renderer::render(Model& model) {
 
 void Renderer::RenderMirrors(Model& model) {
 	auto mirror = model.getMirror();
+	mirror->drawVerts(pDevice_, 0);
 	const D3DXMATRIX* R;
 	const D3DXPLANE* clip; //clip plane for reflections
-	for (int face = 2; face < 3; face++) {
-		//
-		// Draw Mirror quad to stencil buffer ONLY.  In this way
-		// only the stencil bits that correspond to the mirror will
-		// be on.  Therefore, the reflected teapot can only be rendered
-		// where the stencil bits are turned on, and thus on the mirror 
-		// only.
-		//
-		pDevice_->Clear(0, 0, D3DCLEAR_STENCIL, 0, 0, 0);
-		pDevice_->SetRenderState(D3DRS_STENCILENABLE, true);
-		pDevice_->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
-		pDevice_->SetRenderState(D3DRS_STENCILREF, 1);
-		pDevice_->SetRenderState(D3DRS_STENCILMASK, 1);
-		pDevice_->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);
-		pDevice_->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP);
-		pDevice_->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
 
-		// disable writes to the depth and back buffers
-		pDevice_->SetRenderState(D3DRS_ZWRITEENABLE, false);
-		//pDevice_->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
-		//pDevice_->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
-		//pDevice_->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+	pDevice_->SetRenderState(D3DRS_STENCILENABLE, true);
+	pDevice_->Clear(0, 0, D3DCLEAR_STENCIL, 0, 0, 0);
+	//
+	// Draw Mirror quad to stencil buffer ONLY.  In this way
+	// only the stencil bits that correspond to the mirror will
+	// be on.  Therefore, the reflected teapot can only be rendered
+	// where the stencil bits are turned on, and thus on the mirror 
+	// only.
+	//
+	pDevice_->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
+	pDevice_->SetRenderState(D3DRS_STENCILMASK, 0xFF);
+	pDevice_->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);
+	pDevice_->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP);
+	pDevice_->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+
+	// disable writes to the depth and back buffers
+	pDevice_->SetRenderState(D3DRS_ZWRITEENABLE, false);
+	//pDevice_->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
+	//pDevice_->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ZERO);
+	//pDevice_->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+	for (int face = 0; face < 6; face++) {
+		pDevice_->SetRenderState(D3DRS_STENCILREF, face + 1);
+
 
 		// draw the mirror to the stencil buffer
+		mirror->draw(pDevice_, false, face);
+	}
+	
+	// re-enable depth and backbuffer writes
+	pDevice_->SetRenderState(D3DRS_ZWRITEENABLE, true);
+	//pDevice_->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
+
+	// clear depth buffer and blend the reflected teapot with the mirror
+	pDevice_->Clear(0, 0, D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+	// only draw reflection to the pixels where the mirror was drawn to.
+	pDevice_->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_EQUAL);
+	pDevice_->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_KEEP);
+	pDevice_->SetRenderState(D3DRS_CLIPPLANEENABLE, D3DCLIPPLANE0); //enable clip plane
+	pDevice_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+	for (int face = 0; face < 6; face++) {
+		pDevice_->SetRenderState(D3DRS_STENCILREF, face + 1);
 		mirror->setFace(face);
 		R = &mirror->getFaceReflection();
 		clip = &mirror->getFacePlane();
-		mirror->draw(pDevice_, false, face);
-
-		// re-enable depth and backbuffer writes
-		pDevice_->SetRenderState(D3DRS_ZWRITEENABLE, true);
-		//pDevice_->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
-
-		// only draw reflected teapot to the pixels where the mirror was drawn to.
-		pDevice_->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_EQUAL);
-		pDevice_->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_KEEP);
-
-		// clear depth buffer and blend the reflected teapot with the mirror
-		pDevice_->Clear(0, 0, D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
 
 		//reflect the lights
 		for (auto& light : model.getLights()) {
@@ -232,21 +239,20 @@ void Renderer::RenderMirrors(Model& model) {
 		}
 
 		// Finally, draw the reflected scene
-		pDevice_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 		pDevice_->SetClipPlane(0, (float*)clip);
-		pDevice_->SetRenderState(D3DRS_CLIPPLANEENABLE, D3DCLIPPLANE0); //enable clip plane
 		Scene3D(model, R);
 
 		//unreflect the lights
 		for (auto& light : model.getLights()) {
 			light->reflectLight(pDevice_, R);
 		}
-		pDevice_->SetRenderState(D3DRS_CLIPPLANEENABLE, 0); //disable clip plane again
 
-		// Restore render states.
-		pDevice_->SetRenderState(D3DRS_STENCILENABLE, false);
-		pDevice_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 	}
+	// Restore render states.
+	pDevice_->SetRenderState(D3DRS_STENCILENABLE, false);
+	pDevice_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	pDevice_->SetRenderState(D3DRS_CLIPPLANEENABLE, 0); //disable clip plane again
+
 }
 
 /*
