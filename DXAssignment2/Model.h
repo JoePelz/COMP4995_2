@@ -79,7 +79,7 @@ public:
 	/* Get the list of foreground elements. */
 	inline const std::vector<std::shared_ptr<Drawable2D>>& getFG() const { return fgLayers_; }
 	/* Empty the list of foreground elements. */
-	inline void clearFG() { bgLayers_.clear(); }
+	inline void clearFG() { fgLayers_.clear(); }
 
 	inline void add3D(pDrawable3D drawable) { polyLayers_.push_back(drawable); }
 	inline const auto& get3D() const { return polyLayers_; }

@@ -109,7 +109,6 @@ int Renderer::InitDirect3DDevice(HWND hWndTarget, int Width, int Height, BOOL bW
 	return S_OK;
 }
 
-
 /*
 Summary:
 	Constructor: creates a renderer by creating a COM object representing Direct3D 9.
@@ -160,7 +159,10 @@ int Renderer::render(Model& model) {
 		Errors::SetError(TEXT("Cannot render because there is no device"));
 		return E_FAIL;
 	}
-
+	int i = 0;
+	if (!model.getFullscreen()) {
+		i += 1;
+	}
 	pDevice_->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, CLEAR_COLOR, 1.0f, 0);
 
 	PreScene2D(model);
@@ -185,8 +187,7 @@ int Renderer::render(Model& model) {
 void Renderer::RenderMirrors(Model& model) {
 	auto mirror = model.getMirror();
 	mirror->drawVerts(pDevice_, 0);
-	const D3DXMATRIX* R;
-	const D3DXPLANE* clip; //clip plane for reflections
+	const D3DXMATRIX* R; //reflection matrix to flip the scene
 
 	pDevice_->SetRenderState(D3DRS_STENCILENABLE, true);
 	pDevice_->Clear(0, 0, D3DCLEAR_STENCIL, 0, 0, 0);
@@ -230,7 +231,6 @@ void Renderer::RenderMirrors(Model& model) {
 		//Acquire reflection info for this cube face
 		mirror->setFace(face);
 		R = &mirror->getFaceReflection();
-		clip = &mirror->getFacePlane();
 
 		//reflect the lights
 		for (auto& light : model.getLights()) {
@@ -238,7 +238,7 @@ void Renderer::RenderMirrors(Model& model) {
 		}
 
 		// Finally, draw the reflected scene
-		pDevice_->SetClipPlane(0, (float*)clip);
+		pDevice_->SetClipPlane(0, (float*)&mirror->getFacePlane());
 		Scene3D(model, R);
 
 		//unreflect the lights

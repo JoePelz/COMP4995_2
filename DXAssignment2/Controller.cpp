@@ -394,9 +394,6 @@ Params: -
 Return: -
 */
 void Controller::releaseResources() {
-	gameModel.clearBG();
-	gameModel.clearFG();
-
 	for (auto& obj : gameModel.get3D()) {
 		obj->releaseResources();
 	}
