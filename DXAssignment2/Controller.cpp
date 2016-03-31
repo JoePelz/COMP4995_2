@@ -43,22 +43,30 @@ Controller::Controller(HINSTANCE hInstance)
 
 	//Mirror Cube
 	MirrorCube* mc = new MirrorCube();
-	mc->setPosition({ 0.0f, 0.0f, -2.0f });
-	mc->setScale({ 1.0f, 1.0f, 1.0f });
+	mc->setPosition({ 0.0f, 0.5f, -2.0f });
+	mc->setScale({ 0.4f, 0.4f, 0.4f });
 	std::shared_ptr<MirrorCube> myMC(mc);
 	gameModel.setMirror(myMC);
 
 	//little center cube
 	Cube* c = new Cube();
+	c->setPosition({ 0.0f, 0.6f, 0.0f });
+	c->setScale({ 0.6f, 0.6f, 0.6f });
 	pDrawable3D myObj(c);
 	gameModel.add3D(myObj);
 
-	//Big floor cube
-	c = new Cube();
-	c->setPosition({ 0.0f, -50, 0.0f });
-	c->setScale({ 10.0f, 50.0f, 10.0f });
-	pDrawable3D myObj2(c);
-	gameModel.add3D(myObj2);
+	//Ground plane
+	m = new Mesh(TEXT("ground.x"));
+	m->setScale({ 10, 10, 10 });
+	pDrawable3D myMesh2(m);
+	gameModel.add3D(myMesh2);
+
+	//Sky dome
+	m = new Mesh(TEXT("skyball.x"));
+	m->setRotation({ 1, 0, 0 }, D3DX_PI);
+	m->setScale({ 3, 3, 3 });
+	pDrawable3D myMesh3(m);
+	gameModel.add3D(myMesh3);
 
 	//============================================================
 	//                        Lights
