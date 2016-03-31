@@ -1,6 +1,7 @@
 #pragma once
 
 #include "d3dx9.h"
+#include "MathUtilities.h"
 #include <iomanip>
 
 /*
@@ -15,15 +16,16 @@ protected:
 	D3DXVECTOR3 position_; //This object's position.
 	D3DXQUATERNION  rotation_; //This object's rotation.
 	D3DXMATRIXA16 tnet_; //the final transform to render with.
+	BoundingSphere bsphere_; //the bounding sphere for selection.
 public:
 	//Construct a default transform at the origin with a scale of 1.0 and no rotation.
-	Transform3D() : scale_{ 1.0f, 1.0f, 1.0f }, rotation_{ 0, 1, 0, 0 } {}
+	Transform3D() : scale_{ 1.0f, 1.0f, 1.0f }, rotation_{ 0, 1, 0, 0 }, bsphere_{ } {}
 
 	inline const D3DXVECTOR3& getPosition() const { return position_; }
 	inline const D3DXVECTOR3& getScale() const { return scale_; }
 
 	//Update the position of an object.
-	virtual void setPosition(const D3DXVECTOR3& offset) { position_ = offset; }
+	virtual void setPosition(const D3DXVECTOR3& offset) { position_ = offset; bsphere_.center_ = offset; }
 	virtual void translate(const D3DXVECTOR3& offset) { setPosition(position_ + offset); }
 
 	//Update the scale of an object.
@@ -49,6 +51,10 @@ public:
 	virtual const D3DXMATRIXA16& getReflection(const D3DXMATRIX& reflection) {
 		D3DXMatrixMultiply(&tnet_, &getTransform(), &reflection);
 		return tnet_;
+	}
+
+	virtual const BoundingSphere& getBoundingSphere() {
+		return bsphere_;
 	}
 };
 

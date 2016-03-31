@@ -166,6 +166,7 @@
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="FrameRate.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="MathUtilities.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MirrorCube.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Drawable2D.h" />
     <ClInclude Include="Drawable3D.h" />
+    <ClInclude Include="MathUtilities.h" />
     <ClInclude Include="Errors.h" />
     <ClInclude Include="FrameRate.h" />
     <ClInclude Include="Input.h" />

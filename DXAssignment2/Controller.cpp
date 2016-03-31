@@ -43,22 +43,30 @@ Controller::Controller(HINSTANCE hInstance)
 
 	//Mirror Cube
 	MirrorCube* mc = new MirrorCube();
-	mc->setPosition({ 0.0f, 0.0f, -2.0f });
-	mc->setScale({ 1.0f, 1.0f, 1.0f });
+	mc->setPosition({ 0.0f, 0.5f, -2.0f });
+	mc->setScale({ 0.4f, 0.4f, 0.4f });
 	std::shared_ptr<MirrorCube> myMC(mc);
 	gameModel.setMirror(myMC);
 
 	//little center cube
 	Cube* c = new Cube();
+	c->setPosition({ 0.0f, 0.6f, 0.0f });
+	c->setScale({ 0.6f, 0.6f, 0.6f });
 	pDrawable3D myObj(c);
 	gameModel.add3D(myObj);
 
-	//Big floor cube
-	c = new Cube();
-	c->setPosition({ 0.0f, -50, 0.0f });
-	c->setScale({ 10.0f, 50.0f, 10.0f });
-	pDrawable3D myObj2(c);
-	gameModel.add3D(myObj2);
+	//Ground plane
+	m = new Mesh(TEXT("ground.x"));
+	m->setScale({ 10, 10, 10 });
+	pDrawable3D myMesh2(m);
+	gameModel.add3D(myMesh2);
+
+	//Sky dome
+	m = new Mesh(TEXT("skyball.x"));
+	m->setRotation({ 1, 0, 0 }, D3DX_PI);
+	m->setScale({ 3, 3, 3 });
+	pDrawable3D myMesh3(m);
+	gameModel.add3D(myMesh3);
 
 	//============================================================
 	//                        Lights
@@ -180,6 +188,7 @@ Return: -
 void Controller::MouseDown(LPARAM lParam, int btn) {
 	input.mpos.x = GET_X_LPARAM(lParam);
 	input.mpos.y = GET_Y_LPARAM(lParam);
+	bMouseRotate = false;
 	if (btn == 0)
 		input.lbutton = true;
 	else if (btn == 1)
@@ -201,7 +210,7 @@ void Controller::MouseMove(LPARAM lParam) {
 
 	input.mdelta.x = (float)(GET_X_LPARAM(lParam) - input.mpos.x) / (float)gameModel.getWidth();
 	input.mdelta.y = (float)(GET_Y_LPARAM(lParam) - input.mpos.y) / (float)gameModel.getHeight();
-
+	bMouseRotate = true;
 	input.mpos.x = GET_X_LPARAM(lParam);
 	input.mpos.y = GET_Y_LPARAM(lParam);
 }
@@ -221,6 +230,10 @@ void Controller::MouseUp(LPARAM lParam, int btn) {
 		input.mbutton = false;
 	else if (btn == 2)
 		input.rbutton = false;
+
+	if (!bMouseRotate) {
+		PickSelectObject();
+	}
 }
 
 /*
@@ -394,9 +407,6 @@ Params: -
 Return: -
 */
 void Controller::releaseResources() {
-	gameModel.clearBG();
-	gameModel.clearFG();
-
 	for (auto& obj : gameModel.get3D()) {
 		obj->releaseResources();
 	}
@@ -485,6 +495,35 @@ void Controller::updateModel(Input& input, Model& model) {
 			sel->scale(input.scrollAmount * 0.1f + 1.0f);
 		}
 		input.scrollAmount = 0;
+	}
+}
+
+void Controller::PickSelectObject() {
+	auto& device = renderEngine.getDevice();
+	Ray ray = MathUtilities::CalcPickingRay(device, input.mpos.x, input.mpos.y);
+
+	// transform the ray to world space
+	D3DXMATRIX view;
+	device->GetTransform(D3DTS_VIEW, &view);
+
+	D3DXMATRIX viewInverse;
+	D3DXMatrixInverse(&viewInverse, 0, &view);
+
+	MathUtilities::TransformRay(ray, viewInverse);
+
+	float bestVal = FLT_MAX;
+	const pDrawable3D* winner = 0;
+	for (auto& obj : gameModel.get3D()) {
+		float dist = MathUtilities::RaySphereIntTest(ray, obj->getBoundingSphere());
+		if (dist > 0.0f && dist < bestVal) {
+			winner = &obj;
+			bestVal = dist;
+		}
+	}
+	if (winner != 0) {
+		gameModel.setSelection(winner->get());
+	} else {
+		gameModel.setSelection(&gameModel.getCamera());
 	}
 }
 

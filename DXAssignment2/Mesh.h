@@ -4,6 +4,7 @@
 #include <d3d9.h>
 #include "Drawable3D.h"
 #include "Errors.h"
+#include "MathUtilities.h"
 #include "atlstr.h"
 
 /*

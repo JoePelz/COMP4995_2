@@ -12,6 +12,7 @@
 #include "Cube.h"
 #include "MirrorCube.h"
 #include "Light.h"
+#include "MathUtilities.h"
 #include <d3d9.h>
 #include <memory>
 
@@ -29,10 +30,13 @@ private:
 	Model gameModel;
 	//State of user input (keys or buttons down)
 	Input input;
+	//Indicate whether to use mouse motion for rotating.
+	bool bMouseRotate;
 
 	void initializeResources();
 	void releaseResources();
 	void updateModel(Input& input, Model& model);
+	void PickSelectObject();
 public:
 	//Simple constructor, just saves the hInstance.
 	Controller(const HINSTANCE hInstance);
