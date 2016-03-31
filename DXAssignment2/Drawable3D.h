@@ -2,6 +2,7 @@
 
 #include <d3d9.h>
 #include "Transform3D.h"
+#include "MathUtilities.h"
 
 /* This class is a common interface for things that can be drawn in 3D,
 such as cubes, tigers, and airplanes. */

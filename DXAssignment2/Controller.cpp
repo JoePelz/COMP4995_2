@@ -180,6 +180,7 @@ Return: -
 void Controller::MouseDown(LPARAM lParam, int btn) {
 	input.mpos.x = GET_X_LPARAM(lParam);
 	input.mpos.y = GET_Y_LPARAM(lParam);
+	bMouseRotate = false;
 	if (btn == 0)
 		input.lbutton = true;
 	else if (btn == 1)
@@ -201,7 +202,7 @@ void Controller::MouseMove(LPARAM lParam) {
 
 	input.mdelta.x = (float)(GET_X_LPARAM(lParam) - input.mpos.x) / (float)gameModel.getWidth();
 	input.mdelta.y = (float)(GET_Y_LPARAM(lParam) - input.mpos.y) / (float)gameModel.getHeight();
-
+	bMouseRotate = true;
 	input.mpos.x = GET_X_LPARAM(lParam);
 	input.mpos.y = GET_Y_LPARAM(lParam);
 }
@@ -221,6 +222,10 @@ void Controller::MouseUp(LPARAM lParam, int btn) {
 		input.mbutton = false;
 	else if (btn == 2)
 		input.rbutton = false;
+
+	if (!bMouseRotate) {
+		PickSelectObject();
+	}
 }
 
 /*
@@ -482,6 +487,35 @@ void Controller::updateModel(Input& input, Model& model) {
 			sel->scale(input.scrollAmount * 0.1f + 1.0f);
 		}
 		input.scrollAmount = 0;
+	}
+}
+
+void Controller::PickSelectObject() {
+	auto& device = renderEngine.getDevice();
+	Ray ray = MathUtilities::CalcPickingRay(device, input.mpos.x, input.mpos.y);
+
+	// transform the ray to world space
+	D3DXMATRIX view;
+	device->GetTransform(D3DTS_VIEW, &view);
+
+	D3DXMATRIX viewInverse;
+	D3DXMatrixInverse(&viewInverse, 0, &view);
+
+	MathUtilities::TransformRay(ray, viewInverse);
+
+	float bestVal = FLT_MAX;
+	const pDrawable3D* winner = 0;
+	for (auto& obj : gameModel.get3D()) {
+		float dist = MathUtilities::RaySphereIntTest(ray, obj->getBoundingSphere());
+		if (dist > 0.0f && dist < bestVal) {
+			winner = &obj;
+			bestVal = dist;
+		}
+	}
+	if (winner != 0) {
+		gameModel.setSelection(winner->get());
+	} else {
+		gameModel.setSelection(&gameModel.getCamera());
 	}
 }
 
