@@ -23,8 +23,8 @@ Light::Light(D3DLIGHTTYPE type) {
 	light.Specular.r = 1.0f;
 	light.Specular.g = 1.0f;
 	light.Specular.b = 1.0f;
-	light.Attenuation0 = 1.0f;
-	light.Range = 3000.0f;
+	light.Attenuation0 = 0.0f;
+	light.Range = 10000.0f;
 	light.Falloff = 1.0f;
 	light.Phi = 0.32f * D3DX_PI;
 	light.Theta = 0.3f * D3DX_PI;

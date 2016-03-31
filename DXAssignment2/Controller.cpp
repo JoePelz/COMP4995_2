@@ -72,11 +72,13 @@ Controller::Controller(HINSTANCE hInstance)
 	//                        Lights
 	//============================================================
 	pLight myLight1(new Light(D3DLIGHT_DIRECTIONAL));
-	myLight1->setDirection({ 1.0f, -0.5f, 0.0f });
+	myLight1->setDirection({ 1.0f, -1.0f, 0.0f });
 	gameModel.addLight(myLight1);
 
 	pLight myLight2(new Light(D3DLIGHT_POINT));
 	myLight2->setPosition(0, 2, 0);
+	myLight2->setColor(150, 120, 80);
+	myLight2->setAttenuation(5.0f);
 	gameModel.addLight(myLight2);
 
 	pLight myLight3(new Light(D3DLIGHT_SPOT));
