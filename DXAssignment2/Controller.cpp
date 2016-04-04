@@ -400,6 +400,22 @@ void Controller::initializeResources() {
 	device->SetRenderState(D3DRS_LIGHTING, TRUE);
 	device->SetRenderState(D3DRS_STENCILENABLE, TRUE);
 	//device->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(128, 128, 128));
+
+	LPDIRECT3DSURFACE9 backBuffer;
+	D3DSURFACE_DESC description;
+
+	HRESULT r = device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer);
+	if (FAILED(r) || FAILED(backBuffer->GetDesc(&description))) {
+		Errors::SetError(TEXT("Couldn't obtain backBuffer information"));
+		return;
+	}
+	backBuffer->Release();
+	backBuffer = 0;
+	//testTexture 
+	device->CreateTexture(description.Width, description.Height, 1, D3DUSAGE_RENDERTARGET, description.Format, D3DPOOL_DEFAULT, &gameModel.testTexture, NULL);
+
+	r = gameModel.testTexture->GetSurfaceLevel(0, &gameModel.textureSurface);
+	Errors::ErrorCheck(r, TEXT("Error getting surface level 0"));
 }
 
 /*
@@ -421,6 +437,15 @@ void Controller::releaseResources() {
 	}
 	for (auto& obj : gameModel.getFG()) {
 		obj->releaseResources();
+	}
+
+	if (gameModel.textureSurface != NULL) {
+		gameModel.textureSurface->Release();
+		gameModel.textureSurface = NULL;
+	}
+	if (gameModel.testTexture != NULL) {
+		gameModel.testTexture->Release();
+		gameModel.testTexture = NULL;
 	}
 }
 
@@ -500,6 +525,15 @@ void Controller::updateModel(Input& input, Model& model) {
 	}
 }
 
+/*
+Summary:
+	PickSelectObject() runs when the user clicks on the screen. It casts a ray into the scene through the screen
+	to identify which 3D object was clicked on. If a 3d object was situated underneath the location clicked, 
+	that object becomes the active/selected object.  Picking is determined by testing for collisions with 
+	a bounding sphere around each 3d object. (see Transform3D for bounding sphere)
+Params: -
+Return: -
+*/
 void Controller::PickSelectObject() {
 	auto& device = renderEngine.getDevice();
 	Ray ray = MathUtilities::CalcPickingRay(device, input.mpos.x, input.mpos.y);

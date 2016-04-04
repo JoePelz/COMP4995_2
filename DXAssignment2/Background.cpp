@@ -48,7 +48,6 @@ int Background::LoadBackground(LPDIRECT3DDEVICE9& device, const TCHAR* path) {
 
 	LoadImageToSurface(device, path, picture_full);
 
-	int w = 0;
 	LPDIRECT3DSURFACE9 backBuffer;
 	D3DSURFACE_DESC description;
 

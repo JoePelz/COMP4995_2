@@ -159,26 +159,37 @@ int Renderer::render(Model& model) {
 		Errors::SetError(TEXT("Cannot render because there is no device"));
 		return E_FAIL;
 	}
-	int i = 0;
-	if (!model.getFullscreen()) {
-		i += 1;
-	}
 	pDevice_->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, CLEAR_COLOR, 1.0f, 0);
 
+	//render any 2d background textures.
 	PreScene2D(model);
 
+	//begin the 3d work
 	pDevice_->BeginScene();
 	
+	//set up the camera matrix
 	Camera& cam = model.getCamera();
 	pDevice_->SetTransform(D3DTS_VIEW, &cam.getViewMatrix());
 	pDevice_->SetTransform(D3DTS_PROJECTION, &cam.getProjectionMatrix());
 	
+	//render regular geometry (1st pass)
 	Scene3D(model, NULL);
+	//render the mirror cube (using stencil buffers)
 	RenderMirrors(model);
 
+	//done 3d work.
 	pDevice_->EndScene();
 
+	//render 2d overlays
 	PostScene2D(model);
+
+
+	//TEXTURE GLOWY STUFF
+
+	HRESULT r;
+	r = pDevice_->StretchRect(pBackBuffer_, NULL, model.textureSurface, NULL, D3DTEXF_LINEAR);
+	Errors::ErrorCheck(r, TEXT("Error over StretchRect"));
+
 
 	pDevice_->Present(NULL, NULL, NULL, NULL);//swap over buffer to primary surface
 	return S_OK;

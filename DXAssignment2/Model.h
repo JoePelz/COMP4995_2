@@ -33,6 +33,7 @@ class Model {
 	//The camera representing the players view
 	Camera camera_;
 
+
 	/* The current frame rate, in frames per second. */
 	UINT frameRate_;
 	/* The render time in ticks per frame. (1 / fps) */
@@ -50,6 +51,11 @@ class Model {
 	/* The currently selected object. */
 	Transform3D* selected_;
 public:
+	//uhh...
+	LPDIRECT3DTEXTURE9 testTexture;
+	LPDIRECT3DSURFACE9 textureSurface;
+
+
 	Model::Model() : frameRate_{ 1000 }, width_{ DEFAULT_WIDTH }, height_{ DEFAULT_HEIGHT }, fullscreen_{ USE_FULLSCREEN }, selected_{ &camera_ } { }
 	
 	/* Getter for frame rate. */
