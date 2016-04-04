@@ -169,7 +169,6 @@
     <ClCompile Include="MathUtilities.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MirrorCube.cpp" />
-    <ClCompile Include="pixelShader.fx" />
     <ClCompile Include="RectOverlay.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Main.cpp" />

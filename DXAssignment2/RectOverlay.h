@@ -25,6 +25,7 @@ public:
 	void initializeResources(LPDIRECT3DDEVICE9& device) override;
 	void releaseResources() override;
 	void draw(LPDIRECT3DDEVICE9& device, const D3DXMATRIX* xform) override;
+	void drawLite(LPDIRECT3DDEVICE9& device, const D3DXMATRIX* xform);
 	void setupMaterial();
 	void setTexture(LPDIRECT3DTEXTURE9 tex) { tex_ = tex; }
 	

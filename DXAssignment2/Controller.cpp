@@ -418,6 +418,28 @@ void Controller::initializeResources() {
 
 	r = gameModel.testTexture->GetSurfaceLevel(0, &gameModel.textureSurface);
 	Errors::ErrorCheck(r, TEXT("Error getting surface level 0"));
+
+	
+	//Set up pixel shader mumbo jumbo
+	ID3DXBuffer* errors = 0;
+	D3DXCreateEffectFromFile(device, TEXT("pixelShader.fx"), 0, 0, D3DXSHADER_DEBUG, 0, &gameModel.mFX, &errors);
+	if (errors)
+		MessageBox(0, (TCHAR*)errors->GetBufferPointer(), 0, 0);
+
+	// Obtain handles.
+	gameModel.mhTech = gameModel.mFX->GetTechniqueByName("TransformTech");
+	gameModel.mhWorld = gameModel.mFX->GetParameterByName(0, "gWorld");
+	gameModel.mhTex = gameModel.mFX->GetParameterByName(0, "gTex");
+
+	//Init All Vertex Declarations
+	D3DVERTEXELEMENT9 VertexPNTElements[] =
+	{
+		{ 0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+		{ 0, 12, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0 },
+		D3DDECL_END()
+	};
+	r = device->CreateVertexDeclaration(VertexPNTElements, &gameModel.vertDecl);
+	Errors::ErrorCheck(r, TEXT("Vertex Declaration failed"));
 }
 
 /*
@@ -450,6 +472,14 @@ void Controller::releaseResources() {
 		gameModel.testTexture = NULL;
 	}
 	gameModel.rectOverlay.releaseResources();
+	if (gameModel.mFX) {
+		gameModel.mFX->Release();
+		gameModel.mFX = NULL;
+	}
+	if (gameModel.vertDecl) {
+		gameModel.vertDecl->Release();
+		gameModel.vertDecl = NULL;
+	}
 }
 
 /*

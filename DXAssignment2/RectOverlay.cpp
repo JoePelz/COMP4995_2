@@ -68,6 +68,14 @@ void RectOverlay::draw(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX * xform) {
 	device->SetRenderState(D3DRS_LIGHTING, TRUE);
 }
 
+void RectOverlay::drawLite(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX * xform) {
+	device->SetFVF(TexturedVertex_FLAGS);
+	device->SetStreamSource(0, vertexBuffer_, 0, TexturedVertex_STRIDE);
+
+	device->SetTransform(D3DTS_WORLD, &getTransform());
+	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+}
+
 RectOverlay::RectOverlay() {
 	setPosition({ 0, 0, 0 });
 	setScale({ 0.4f, 0.4f, 0.4f });
