@@ -55,8 +55,8 @@ OutputVS TransformVS(float3 posL : POSITION0, float2 tex0 : TEXCOORD0) {
 float4 TransformPS(float2 tex0 : TEXCOORD0) : COLOR
 {
 	float3 texColor = tex2D(TexS, tex0).rgb;
-	//return float4(texColor, 1.0f);
-	return float4(1.0f, 1.0f, 1.0f, 1.0f);
+	return float4(texColor, 0.5f);
+	//return float4(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 technique TransformTech {
@@ -67,6 +67,6 @@ technique TransformTech {
 		pixelShader  = compile ps_2_0 TransformPS();
 
 		// Specify the render/device states associated with this pass.
-		FillMode = Wireframe;
+		//FillMode = Wireframe;
 	}
 }

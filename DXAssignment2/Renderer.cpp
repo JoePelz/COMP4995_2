@@ -305,6 +305,11 @@ void Renderer::Scene3D(Model& model, const D3DXMATRIX* xform) {
 	UINT numPasses = 0;
 	r = model.mFX->Begin(&numPasses, 0);
 	Errors::ErrorCheck(r, TEXT("FX Begin failed"));
+
+	pDevice_->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	pDevice_->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR);
+	pDevice_->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCCOLOR);
+
 	for (UINT i = 0; i < numPasses; ++i) {
 		r = model.mFX->BeginPass(i);
 		Errors::ErrorCheck(r, TEXT("FX Begin Pass failed"));
@@ -322,6 +327,8 @@ void Renderer::Scene3D(Model& model, const D3DXMATRIX* xform) {
 	}
 	r = model.mFX->End();
 	Errors::ErrorCheck(r, TEXT("FX End failed"));
+
+	pDevice_->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 }
 
 /*
