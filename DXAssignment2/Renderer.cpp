@@ -175,21 +175,13 @@ int Renderer::render(Model& model) {
 	//render regular geometry (1st pass)
 	Scene3D(model, NULL);
 	//render the mirror cube (using stencil buffers)
-	RenderMirrors(model);
+	//RenderMirrors(model);
 
 	//done 3d work.
 	pDevice_->EndScene();
 
 	//render 2d overlays
 	PostScene2D(model);
-
-
-	//TEXTURE GLOWY STUFF
-
-	HRESULT r;
-	r = pDevice_->StretchRect(pBackBuffer_, NULL, model.textureSurface, NULL, D3DTEXF_LINEAR);
-	Errors::ErrorCheck(r, TEXT("Error over StretchRect"));
-
 
 	pDevice_->Present(NULL, NULL, NULL, NULL);//swap over buffer to primary surface
 	return S_OK;
@@ -290,6 +282,20 @@ void Renderer::Scene3D(Model& model, const D3DXMATRIX* xform) {
 	for (auto& obj : model.get3D()) {
 		obj->draw(pDevice_, xform);
 	}
+
+	HRESULT r;
+	r = pDevice_->StretchRect(pBackBuffer_, NULL, model.textureSurface, NULL, D3DTEXF_LINEAR);
+	Errors::ErrorCheck(r, TEXT("Error over StretchRect"));
+
+	//TEXTURE GLOWY STUFF
+	D3DXMATRIX ident;
+	D3DXMatrixIdentity(&ident);
+
+	pDevice_->SetTransform(D3DTS_WORLD, &ident);
+	pDevice_->SetTransform(D3DTS_PROJECTION, &ident);
+	pDevice_->SetTransform(D3DTS_VIEW, &ident);
+	model.rectOverlay.setTexture(model.testTexture);
+	model.rectOverlay.draw(pDevice_, NULL);
 }
 
 /*

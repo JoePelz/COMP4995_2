@@ -67,7 +67,7 @@ Controller::Controller(HINSTANCE hInstance)
 	m->setScale({ 15, 15, 15 });
 	pDrawable3D myMesh3(m);
 	gameModel.add3D(myMesh3);
-
+	
 	//============================================================
 	//                        Lights
 	//============================================================
@@ -401,6 +401,8 @@ void Controller::initializeResources() {
 	device->SetRenderState(D3DRS_STENCILENABLE, TRUE);
 	//device->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(128, 128, 128));
 
+
+	gameModel.rectOverlay.initializeResources(device);
 	LPDIRECT3DSURFACE9 backBuffer;
 	D3DSURFACE_DESC description;
 
@@ -447,6 +449,7 @@ void Controller::releaseResources() {
 		gameModel.testTexture->Release();
 		gameModel.testTexture = NULL;
 	}
+	gameModel.rectOverlay.releaseResources();
 }
 
 /*

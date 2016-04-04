@@ -8,6 +8,7 @@
 #include "Errors.h"
 #include "Light.h"
 #include "MirrorCube.h"
+#include "RectOverlay.h"
 #include <vector>
 #include <memory>
 
@@ -54,6 +55,7 @@ public:
 	//uhh...
 	LPDIRECT3DTEXTURE9 testTexture;
 	LPDIRECT3DSURFACE9 textureSurface;
+	RectOverlay rectOverlay;
 
 
 	Model::Model() : frameRate_{ 1000 }, width_{ DEFAULT_WIDTH }, height_{ DEFAULT_HEIGHT }, fullscreen_{ USE_FULLSCREEN }, selected_{ &camera_ } { }
