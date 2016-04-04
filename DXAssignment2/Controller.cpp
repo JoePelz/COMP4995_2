@@ -64,7 +64,7 @@ Controller::Controller(HINSTANCE hInstance)
 	//Sky dome
 	m = new Mesh(TEXT("skyball.x"));
 	m->setRotation({ 1, 0, 0 }, D3DX_PI);
-	m->setScale({ 3, 3, 3 });
+	m->setScale({ 15, 15, 15 });
 	pDrawable3D myMesh3(m);
 	gameModel.add3D(myMesh3);
 
@@ -399,7 +399,7 @@ void Controller::initializeResources() {
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	device->SetRenderState(D3DRS_LIGHTING, TRUE);
 	device->SetRenderState(D3DRS_STENCILENABLE, TRUE);
-	device->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(128, 128, 128));
+	//device->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(128, 128, 128));
 }
 
 /*
@@ -514,16 +514,24 @@ void Controller::PickSelectObject() {
 	MathUtilities::TransformRay(ray, viewInverse);
 
 	float bestVal = FLT_MAX;
-	const pDrawable3D* winner = 0;
+	float dist;
+	Transform3D* winner = 0;
 	for (auto& obj : gameModel.get3D()) {
-		float dist = MathUtilities::RaySphereIntTest(ray, obj->getBoundingSphere());
+		dist = MathUtilities::RaySphereIntTest(ray, obj->getBoundingSphere());
 		if (dist > 0.0f && dist < bestVal) {
-			winner = &obj;
+			winner = obj.get();
 			bestVal = dist;
 		}
 	}
+	auto& obj = gameModel.getMirror();
+	dist = MathUtilities::RaySphereIntTest(ray, obj->getBoundingSphere());
+	if (dist > 0.0f && dist < bestVal) {
+		winner = obj.get();
+		bestVal = dist;
+	}
+
 	if (winner != 0) {
-		gameModel.setSelection(winner->get());
+		gameModel.setSelection(winner);
 	} else {
 		gameModel.setSelection(&gameModel.getCamera());
 	}

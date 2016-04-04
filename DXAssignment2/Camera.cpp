@@ -12,7 +12,7 @@ Camera::Camera() :
 	right{ 1.0f, 0.0f, 0.0f },
 	up{ 0.0f, 1.0f, 0.0f },
 	nearClip{ 0.1f },
-	farClip{ 100.0f },
+	farClip{ 1000.0f },
 	horizontalAngle{ 0.0f },
 	verticalAngle{ -0.2f },
 	aspect{ 4.0f / 3.0f },
