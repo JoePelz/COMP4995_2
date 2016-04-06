@@ -52,7 +52,7 @@ class Model {
 	/* The currently selected object. */
 	Transform3D* selected_;
 public:
-	//uhh...
+	//Texture-based post-processing overlaid rectangle.
 	RectOverlay rectOverlay;
 
 	Model::Model() : frameRate_{ 1000 }, width_{ DEFAULT_WIDTH }, height_{ DEFAULT_HEIGHT }, fullscreen_{ USE_FULLSCREEN }, selected_{ &camera_ } { }
@@ -79,6 +79,7 @@ public:
 	inline const std::vector<std::shared_ptr<Drawable2D>>& getBG() const { return bgLayers_; }
 	/* Empty the list of background elements. */
 	inline void clearBG() { bgLayers_.clear(); }
+
 	/* Add a drawable element to the foreground layer. */
 	inline void addFG(std::shared_ptr<Drawable2D> drawable) { fgLayers_.push_back(drawable); }
 	/* Get the list of foreground elements. */

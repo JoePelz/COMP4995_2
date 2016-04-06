@@ -1,5 +1,12 @@
 #include "MathUtilities.h"
 
+
+/*
+Summary:
+	Constructor: Create a bounding box the size of negative 'infinity.' 
+Params: -
+Return: -
+*/
 BoundingBox::BoundingBox() {
 	_min.x = FLT_MAX;
 	_min.y = FLT_MAX;
@@ -10,15 +17,39 @@ BoundingBox::BoundingBox() {
 	_max.z = -FLT_MAX;
 }
 
+/*
+Summary:
+	Tests whether a point is inside this bounding box and returns true if it is.
+Params:
+	p: The 3D point to test inside-ness against.
+Return: True if the point p is contained within the BoundingBox.
+*/
 bool BoundingBox::isPointInside(D3DXVECTOR3 & p) {
 	return p.x >= _min.x && p.y >= _min.y && p.z >= _min.z &&
 		p.x <= _max.x && p.y <= _max.y && p.z <= _max.z;
 }
 
+/*
+Summary:
+	Constructor: Creates a BoundingSphere with a default radius of 1.0f.
+Params: -
+Return: -
+*/
 BoundingSphere::BoundingSphere() { 
 	_radius = 1.0f; 
 }
 
+/*
+Summary:
+	Transforms a position in x/y screen coordinates into a ray into a x/y/z ray in camera space.  
+	To convert the ray to world coordinates, transform the resulting ray by the inverse of the camera view matrix.
+Params:
+	device: The Direct3D device the picking is being done in.
+	projection: the projection matrix of the camera being picked through.
+	x: The x screen coordinate to pick at (in pixels, top left is (0,0))
+	y: The y screen coordinate to pick at (in pixels, top left is (0,0))
+Return: The ray calculated, pointing from the origin, at an angle based on the camera.
+*/
 Ray MathUtilities::CalcPickingRay(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX & projection, int x, int y) {
 	float px = 0.0f;
 	float py = 0.0f;
@@ -26,11 +57,8 @@ Ray MathUtilities::CalcPickingRay(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX &
 	D3DVIEWPORT9 vp;
 	device->GetViewport(&vp);
 
-	D3DXMATRIX proj;
-	device->GetTransform(D3DTS_PROJECTION, &proj);
-
-	px = (((2.0f*x) / vp.Width) - 1.0f) / proj(0, 0);
-	py = (((-2.0f*y) / vp.Height) + 1.0f) / proj(1, 1);
+	px = (((2.0f*x) / vp.Width) - 1.0f) / projection(0, 0);
+	py = (((-2.0f*y) / vp.Height) + 1.0f) / projection(1, 1);
 
 	Ray ray;
 	ray._origin = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -39,6 +67,14 @@ Ray MathUtilities::CalcPickingRay(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX &
 	return ray;
 }
 
+/*
+Summary:
+	Transform the origin and the direction of the ray based on the given transformation matrix.
+Params:
+	ray: The ray to transform.
+	T: The transformation to apply to the ray.
+Return: -
+*/
 void MathUtilities::TransformRay(Ray & ray, const D3DXMATRIX & T) {
 	// transform the ray's origin, w = 1.
 	D3DXVec3TransformCoord(
@@ -56,6 +92,15 @@ void MathUtilities::TransformRay(Ray & ray, const D3DXMATRIX & T) {
 	D3DXVec3Normalize(&ray._direction, &ray._direction);
 }
 
+/*
+Summary:
+	Test for intersection between a ray and a BoundingSphere, 
+	given the same coordinate system.
+Params:
+	ray: The ray to hit-test with.
+	T: The sphere to test for intersections with.
+Return: The distance along the ray at the point of intersection with the sphere. Negative numbers indicate no hits.
+*/
 float MathUtilities::RaySphereIntTest(const Ray & ray, const BoundingSphere & sphere) {
 	D3DXVECTOR3 v = ray._origin - sphere.center_;
 

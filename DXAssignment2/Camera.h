@@ -10,7 +10,6 @@ and is modeled after a camera in a position looking at a target.
 
 class Camera : public Transform3D {
 	D3DXMATRIXA16 ViewMatrix; //viewing matrix transformation (for orientation of the scene)
-	D3DXMATRIXA16 ReflectedViewMatrix; //reflected viewing matrix transformation (for mirrors)
 	D3DXMATRIXA16 ProjectionMatrix;  //projection matrix transformation (for perspective)
 	D3DXVECTOR3 direction; //Direction the camera is looking.
 	D3DXVECTOR3 lookAt; //position camera is looking at. Derived from camera position and direction
@@ -30,7 +29,6 @@ public:
 	void setPosition(const D3DXVECTOR3& newPosition) override;
 	void setAspect(float ratio);
 	void addRotation(float horizontal, float vertical);
-	const D3DXMATRIXA16& getReflectedView(const D3DXMATRIX& reflection);
 	inline void addRotation(const POINTFLOAT& delta) { addRotation(delta.x, delta.y); }
 	inline const D3DXVECTOR3& getDirection() const { return direction; }
 	inline const D3DXVECTOR3& getRight() const { return right; }

@@ -24,7 +24,7 @@ class Renderer {
 
 	// Render the 3D scene provided in Model
 	void Scene3D(Model&, const D3DXMATRIX* xform);
-	void RenderMirrors(Model&);
+	void RenderMirror(Model&);
 
 	// Handles 2D drawing on the frame after the 3D work is complete.
 	void PostScene2D(Model&);

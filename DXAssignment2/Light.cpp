@@ -53,6 +53,14 @@ void Light::releaseResources() {
 	--si_light;
 }
 
+/*
+Summary:
+	Reflect the position and direction of the light in 3-space. Changes the light. (for rendering mirrors)
+Params:
+	device: The Direct3D device the light must update
+	reflection: the reflection matrix to modify the light with.
+Return: -
+*/
 void Light::reflectLight(LPDIRECT3DDEVICE9& device, const D3DXMATRIX * reflection) {
 	//get and set position and direction
 	D3DXVECTOR3* pos = (D3DXVECTOR3 *)&light.Position;

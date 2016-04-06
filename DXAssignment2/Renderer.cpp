@@ -172,7 +172,7 @@ int Renderer::render(Model& model) {
 	pDevice_->SetTransform(D3DTS_VIEW, &cam.getViewMatrix());
 	pDevice_->SetTransform(D3DTS_PROJECTION, &cam.getProjectionMatrix());
 	
-	//render regular geometry (1st pass)
+	//render 3D geometry
 	Scene3D(model, NULL);
 
 	//done 3d work.
@@ -185,7 +185,14 @@ int Renderer::render(Model& model) {
 	return S_OK;
 }
 
-void Renderer::RenderMirrors(Model& model) {
+/*
+Summary:
+	Renders the mirror cube object
+Params: 
+	model: the program model containing information about the scene to render.
+Return: -
+*/
+void Renderer::RenderMirror(Model& model) {
 	auto mirror = model.getMirror();
 	mirror->drawVerts(pDevice_, 0);
 	const D3DXMATRIX* R; //reflection matrix to flip the scene
@@ -283,7 +290,7 @@ void Renderer::Scene3D(Model& model, const D3DXMATRIX* xform) {
 	}
 
 	//render the mirror cube (using stencil buffers)
-	RenderMirrors(model);
+	RenderMirror(model);
 
 	model.rectOverlay.updateTexture(pDevice_, pBackBuffer_);
 	model.rectOverlay.draw(pDevice_, NULL);

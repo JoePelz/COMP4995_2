@@ -316,8 +316,9 @@ bool Controller::KeyDown(WPARAM wParam) {
 		renderEngine.getDevice()->GetLightEnable(2, (BOOL*)&temp);
 		renderEngine.getDevice()->LightEnable(2, !temp);
 		return true;
-	case VK_F3:
+	case VK_F3: //cycle through post-processing shaders
 		gameModel.rectOverlay.cycleShader(renderEngine.getDevice());
+		return true;
 	}
 
 	return false;

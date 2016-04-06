@@ -1,7 +1,9 @@
 #include "RectOverlay.h"
 
 
-
+/*
+List of shaders available to cycle through.
+*/
 const TCHAR * const RectOverlay::shaders_[] = {
 	TEXT("shaderNone.fx"),
 	TEXT("shaderSepia.fx"),
@@ -9,6 +11,13 @@ const TCHAR * const RectOverlay::shaders_[] = {
 	TEXT("shaderInvert.fx")
 };
 
+/*
+Summary:
+	Initialize the vertices, and create a vertex declaration for the shader.
+Params: 
+	device: the device to register and allocate within.
+Return: -
+*/
 void RectOverlay::initVertices(IDirect3DDevice9 * device) {
 	TexturedVertex vertices[] = {
 		{ 1.0f,  1.0f, -1.0f, 0.0f, 0.0f },
@@ -38,6 +47,13 @@ void RectOverlay::initVertices(IDirect3DDevice9 * device) {
 	Errors::ErrorCheck(r, TEXT("Vertex Declaration failed"));
 }
 
+/*
+Summary:
+	Initialize the custom texture.
+Params: 
+	device: the device to register and allocate within.
+Return: -
+*/
 void RectOverlay::initTexture(IDirect3DDevice9 * device) {
 	LPDIRECT3DSURFACE9 backBuffer;
 	D3DSURFACE_DESC description;
@@ -49,7 +65,7 @@ void RectOverlay::initTexture(IDirect3DDevice9 * device) {
 	}
 	backBuffer->Release();
 	backBuffer = 0;
-	//testTexture 
+
 	device->CreateTexture(
 		description.Width, 
 		description.Height, 
@@ -64,6 +80,13 @@ void RectOverlay::initTexture(IDirect3DDevice9 * device) {
 	Errors::ErrorCheck(r, TEXT("Error getting surface level 0"));
 }
 
+/*
+Summary:
+	Initialize the new pixel shader.
+Params: 
+	device: the device to register and allocate within.
+Return: -
+*/
 void RectOverlay::initPixelShader(IDirect3DDevice9 * device) {
 	//Set up pixel shader mumbo jumbo
 	ID3DXBuffer* errors = 0;
@@ -77,12 +100,25 @@ void RectOverlay::initPixelShader(IDirect3DDevice9 * device) {
 	shTex_ = shader_->GetParameterByName(0, "gTex");
 }
 
+/*
+Summary:
+	Initialize the resources used by the overlay within the Direct3D device context.
+Params: 
+	device: the device to register and allocate within.
+Return: -
+*/
 void RectOverlay::initializeResources(LPDIRECT3DDEVICE9 & device) {
 	initVertices(device);
 	initTexture(device);
 	initPixelShader(device);
 }
 
+/*
+Summary:
+	Release all the resources used by the overlay.
+Params: -
+Return: -
+*/
 void RectOverlay::releaseResources() {
 	if (vertexBuffer_) {
 		vertexBuffer_->Release();
@@ -106,6 +142,14 @@ void RectOverlay::releaseResources() {
 	}
 }
 
+/*
+Summary:
+	Render the overlay.
+Params: 
+	device: the device to draw in.
+	xform: any additional transformations to append
+Return: -
+*/
 void RectOverlay::draw(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX* xform) {
 	device->SetVertexDeclaration(vertDecl_);
 	HRESULT r = shader_->SetTechnique(shTechnique_);
@@ -143,12 +187,27 @@ void RectOverlay::draw(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX* xform) {
 	device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 }
 
+/*
+Summary:
+	Update the texture by copying in from the backBuffer
+Params: 
+	device: the device to work within.
+	backBuffer: the current back buffer to copy the texture from.
+Return: -
+*/
 void RectOverlay::updateTexture(IDirect3DDevice9* device, IDirect3DSurface9 * backBuffer) {
 	HRESULT r;
 	r = device->StretchRect(backBuffer, NULL, texSurface_, NULL, D3DTEXF_LINEAR);
 	Errors::ErrorCheck(r, TEXT("Error over StretchRect"));
 }
 
+/*
+Summary:
+	Cycle through the available shaders. Releases and reinitializes the overlay.
+Params: 
+	device: the Direct3D device context to work in.
+Return: -
+*/
 void RectOverlay::cycleShader(IDirect3DDevice9* device) {
 	releaseResources();
 	//change shader assignment
@@ -156,9 +215,16 @@ void RectOverlay::cycleShader(IDirect3DDevice9* device) {
 	initializeResources(device);
 }
 
+/*
+Summary:
+	Constructor: create an overlay and put it directly in front of the camera.
+Params: 
+	device: the device to draw in.
+	xform: any additional transformations to append
+Return: -
+*/
 RectOverlay::RectOverlay() {
 	setPosition({ 0, 0, -1 });
-	setScale({ 1.0f, 1.0f, 1.0f });
 	shaderIndex_ = 0;
 }
 
