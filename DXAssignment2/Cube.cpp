@@ -8,7 +8,6 @@ Params:
 Return: -
 */
 void Cube::initializeResources(LPDIRECT3DDEVICE9 & device) {
-	
 	ColouredNormalVertex vertices[] = {
 		// Front Face (1-2-3-4)
 		{ -1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0xffff0000 },

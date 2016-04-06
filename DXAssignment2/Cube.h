@@ -20,7 +20,6 @@ The Cube class represents a 3D Cube with colored-vertex sides that can be render
 class Cube : public Drawable3D {
 protected:
 	IDirect3DVertexBuffer9* vertexBuffer_; //pointer to buffer within the Direct3D device.
-	D3DXMATRIX net;
 public:
 	void initializeResources(LPDIRECT3DDEVICE9& device) override;
 	void releaseResources() override;

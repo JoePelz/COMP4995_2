@@ -31,6 +31,7 @@ Controller::Controller(HINSTANCE hInstance)
 	Mesh* m = new Mesh(TEXT("Viggen.x"));
 	m->setPosition({ 2.0f, 0.5f, 0.0f });
 	m->setScale({ 2.0f, 2.0f, 2.0f });
+	m->setBoundingSphereRadius(2.0f);
 	pDrawable3D myMesh(m);
 	gameModel.add3D(myMesh);
 
@@ -38,6 +39,7 @@ Controller::Controller(HINSTANCE hInstance)
 	m = new Mesh(TEXT("Harrier.x"));
 	m->setPosition({ 0.0f, 1.5f, 0.0f });
 	m->rotate({ 0, 1, 0 }, D3DX_PI / 2);
+	m->setBoundingSphereRadius(1.5f);
 	pDrawable3D myMesh1(m);
 	gameModel.add3D(myMesh1);
 
@@ -58,6 +60,7 @@ Controller::Controller(HINSTANCE hInstance)
 	//Ground plane
 	m = new Mesh(TEXT("ground.x"));
 	m->setScale({ 10, 10, 10 });
+	m->setSelectable(false);
 	pDrawable3D myMesh2(m);
 	gameModel.add3D(myMesh2);
 
@@ -65,9 +68,10 @@ Controller::Controller(HINSTANCE hInstance)
 	m = new Mesh(TEXT("skyball.x"));
 	m->setRotation({ 1, 0, 0 }, D3DX_PI);
 	m->setScale({ 15, 15, 15 });
+	m->setSelectable(false);
 	pDrawable3D myMesh3(m);
 	gameModel.add3D(myMesh3);
-
+	
 	//============================================================
 	//                        Lights
 	//============================================================
@@ -400,6 +404,46 @@ void Controller::initializeResources() {
 	device->SetRenderState(D3DRS_LIGHTING, TRUE);
 	device->SetRenderState(D3DRS_STENCILENABLE, TRUE);
 	//device->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(128, 128, 128));
+
+
+	gameModel.rectOverlay.initializeResources(device);
+	LPDIRECT3DSURFACE9 backBuffer;
+	D3DSURFACE_DESC description;
+
+	HRESULT r = device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer);
+	if (FAILED(r) || FAILED(backBuffer->GetDesc(&description))) {
+		Errors::SetError(TEXT("Couldn't obtain backBuffer information"));
+		return;
+	}
+	backBuffer->Release();
+	backBuffer = 0;
+	//testTexture 
+	device->CreateTexture(description.Width, description.Height, 1, D3DUSAGE_RENDERTARGET, description.Format, D3DPOOL_DEFAULT, &gameModel.testTexture, NULL);
+
+	r = gameModel.testTexture->GetSurfaceLevel(0, &gameModel.textureSurface);
+	Errors::ErrorCheck(r, TEXT("Error getting surface level 0"));
+
+	
+	//Set up pixel shader mumbo jumbo
+	ID3DXBuffer* errors = 0;
+	D3DXCreateEffectFromFile(device, TEXT("pixelShader.fx"), 0, 0, D3DXSHADER_DEBUG, 0, &gameModel.mFX, &errors);
+	if (errors)
+		MessageBox(0, (TCHAR*)errors->GetBufferPointer(), 0, 0);
+
+	// Obtain handles.
+	gameModel.mhTech = gameModel.mFX->GetTechniqueByName("TransformTech");
+	gameModel.mhWorld = gameModel.mFX->GetParameterByName(0, "gWorld");
+	gameModel.mhTex = gameModel.mFX->GetParameterByName(0, "gTex");
+
+	//Init All Vertex Declarations
+	D3DVERTEXELEMENT9 VertexPNTElements[] =
+	{
+		{ 0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
+		{ 0, 12, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0 },
+		D3DDECL_END()
+	};
+	r = device->CreateVertexDeclaration(VertexPNTElements, &gameModel.vertDecl);
+	Errors::ErrorCheck(r, TEXT("Vertex Declaration failed"));
 }
 
 /*
@@ -421,6 +465,24 @@ void Controller::releaseResources() {
 	}
 	for (auto& obj : gameModel.getFG()) {
 		obj->releaseResources();
+	}
+
+	if (gameModel.textureSurface != NULL) {
+		gameModel.textureSurface->Release();
+		gameModel.textureSurface = NULL;
+	}
+	if (gameModel.testTexture != NULL) {
+		gameModel.testTexture->Release();
+		gameModel.testTexture = NULL;
+	}
+	gameModel.rectOverlay.releaseResources();
+	if (gameModel.mFX) {
+		gameModel.mFX->Release();
+		gameModel.mFX = NULL;
+	}
+	if (gameModel.vertDecl) {
+		gameModel.vertDecl->Release();
+		gameModel.vertDecl = NULL;
 	}
 }
 
@@ -500,16 +562,24 @@ void Controller::updateModel(Input& input, Model& model) {
 	}
 }
 
+/*
+Summary:
+	PickSelectObject() runs when the user clicks on the screen. It casts a ray into the scene through the screen
+	to identify which 3D object was clicked on. If a 3d object was situated underneath the location clicked, 
+	that object becomes the active/selected object.  Picking is determined by testing for collisions with 
+	a bounding sphere around each 3d object. (see Transform3D for bounding sphere)
+Params: -
+Return: -
+*/
 void Controller::PickSelectObject() {
 	auto& device = renderEngine.getDevice();
-	Ray ray = MathUtilities::CalcPickingRay(device, input.mpos.x, input.mpos.y);
+	const auto& cam = gameModel.getCamera();
+
+	Ray ray = MathUtilities::CalcPickingRay(device, cam.getProjectionMatrix(), input.mpos.x, input.mpos.y);
 
 	// transform the ray to world space
-	D3DXMATRIX view;
-	device->GetTransform(D3DTS_VIEW, &view);
-
 	D3DXMATRIX viewInverse;
-	D3DXMatrixInverse(&viewInverse, 0, &view);
+	D3DXMatrixInverse(&viewInverse, 0, &cam.getViewMatrix());
 
 	MathUtilities::TransformRay(ray, viewInverse);
 
@@ -518,7 +588,7 @@ void Controller::PickSelectObject() {
 	Transform3D* winner = 0;
 	for (auto& obj : gameModel.get3D()) {
 		dist = MathUtilities::RaySphereIntTest(ray, obj->getBoundingSphere());
-		if (dist > 0.0f && dist < bestVal) {
+		if (dist > 0.0f && dist < bestVal && obj->isSelectable()) {
 			winner = obj.get();
 			bestVal = dist;
 		}

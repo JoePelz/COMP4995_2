@@ -159,25 +159,26 @@ int Renderer::render(Model& model) {
 		Errors::SetError(TEXT("Cannot render because there is no device"));
 		return E_FAIL;
 	}
-	int i = 0;
-	if (!model.getFullscreen()) {
-		i += 1;
-	}
 	pDevice_->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL, CLEAR_COLOR, 1.0f, 0);
 
+	//render any 2d background textures.
 	PreScene2D(model);
 
+	//begin the 3d work
 	pDevice_->BeginScene();
 	
+	//set up the camera matrix
 	Camera& cam = model.getCamera();
 	pDevice_->SetTransform(D3DTS_VIEW, &cam.getViewMatrix());
 	pDevice_->SetTransform(D3DTS_PROJECTION, &cam.getProjectionMatrix());
 	
+	//render regular geometry (1st pass)
 	Scene3D(model, NULL);
-	RenderMirrors(model);
 
+	//done 3d work.
 	pDevice_->EndScene();
 
+	//render 2d overlays
 	PostScene2D(model);
 
 	pDevice_->Present(NULL, NULL, NULL, NULL);//swap over buffer to primary surface
@@ -239,7 +240,9 @@ void Renderer::RenderMirrors(Model& model) {
 
 		// Finally, draw the reflected scene
 		pDevice_->SetClipPlane(0, (float*)&mirror->getFacePlane());
-		Scene3D(model, R);
+		for (auto& obj : model.get3D()) {
+			obj->draw(pDevice_, R);
+		}
 
 		//unreflect the lights
 		for (auto& light : model.getLights()) {
@@ -251,7 +254,6 @@ void Renderer::RenderMirrors(Model& model) {
 	pDevice_->SetRenderState(D3DRS_STENCILENABLE, false);
 	pDevice_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 	pDevice_->SetRenderState(D3DRS_CLIPPLANEENABLE, 0); //disable clip plane again
-
 }
 
 /*
@@ -279,6 +281,56 @@ void Renderer::Scene3D(Model& model, const D3DXMATRIX* xform) {
 	for (auto& obj : model.get3D()) {
 		obj->draw(pDevice_, xform);
 	}
+
+	//render the mirror cube (using stencil buffers)
+	RenderMirrors(model);
+
+	HRESULT r;
+	r = pDevice_->StretchRect(pBackBuffer_, NULL, model.textureSurface, NULL, D3DTEXF_LINEAR);
+	Errors::ErrorCheck(r, TEXT("Error over StretchRect"));
+
+	//TEXTURE GLOWY STUFF
+	D3DXMATRIX ident;
+	D3DXMatrixIdentity(&ident);
+
+	pDevice_->SetTransform(D3DTS_WORLD, &ident);
+	pDevice_->SetTransform(D3DTS_PROJECTION, &ident);
+	pDevice_->SetTransform(D3DTS_VIEW, &ident);
+
+
+	pDevice_->SetVertexDeclaration(model.vertDecl);
+	r = model.mFX->SetTechnique(model.mhTech);
+	Errors::ErrorCheck(r, TEXT("FX setTechnique failed"));
+	model.rectOverlay.setTexture(model.testTexture);
+	
+
+	UINT numPasses = 0;
+	r = model.mFX->Begin(&numPasses, 0);
+	Errors::ErrorCheck(r, TEXT("FX Begin failed"));
+
+	//pDevice_->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	//pDevice_->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR);
+	//pDevice_->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCCOLOR);
+
+	for (UINT i = 0; i < numPasses; ++i) {
+		r = model.mFX->BeginPass(i);
+		Errors::ErrorCheck(r, TEXT("FX Begin Pass failed"));
+		r = model.mFX->SetTexture(model.mhTex, model.testTexture);
+		Errors::ErrorCheck(r, TEXT("FX Set Texture failed"));
+		r = model.mFX->SetMatrix(model.mhWorld, &model.rectOverlay.getTransform());
+		Errors::ErrorCheck(r, TEXT("FX Set Matrix failed"));
+		r = model.mFX->CommitChanges();
+		Errors::ErrorCheck(r, TEXT("FX Commit Changes failed"));
+		//----------------------
+		model.rectOverlay.drawLite(pDevice_, NULL);
+		//----------------------
+		r = model.mFX->EndPass();
+		Errors::ErrorCheck(r, TEXT("FX End Pass failed"));
+	}
+	r = model.mFX->End();
+	Errors::ErrorCheck(r, TEXT("FX End failed"));
+
+	pDevice_->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 }
 
 /*
