@@ -109,5 +109,5 @@ void MirrorCube::drawVerts(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX * xform)
 	}
 	float pointSize = 10.0f;
 	device->SetRenderState(D3DRS_POINTSIZE, *((DWORD*)&pointSize));
-	device->DrawPrimitive(D3DPT_POINTLIST, 0, 12);
+	device->DrawPrimitive(D3DPT_POINTLIST, 0, 24);
 }

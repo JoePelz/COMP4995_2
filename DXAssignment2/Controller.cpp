@@ -28,34 +28,32 @@ Controller::Controller(HINSTANCE hInstance)
 	//                        3D Geometry
 	//============================================================
 	//Viggen retrieved from http://www.sandbox.de/osg/ 
-	Mesh* m = new Mesh(TEXT("Viggen.x"));
-	m->setPosition({ 2.0f, 0.5f, 0.0f });
-	m->setScale({ 2.0f, 2.0f, 2.0f });
-	m->setBoundingSphereRadius(2.0f);
-	pDrawable3D myMesh(m);
-	gameModel.add3D(myMesh);
+	Mesh* m;
+
+	for (float z = 6.0f; z > -5; z -= 4) {
+		m = new Mesh(TEXT("Viggen.x"));
+		m->setPosition({ 4.0f, 0.3f, z });
+		m->setScale({ 2.0f, 2.0f, 2.0f });
+		//m->setBoundingSphereRadius(1.7f);
+		pDrawable3D myMesh(m);
+		gameModel.add3D(myMesh);
+	}
 
 	//Harrier jet, also from http://www.sandbox.de/osg/ 
-	m = new Mesh(TEXT("Harrier.x"));
-	m->setPosition({ 0.0f, 1.5f, 0.0f });
-	m->rotate({ 0, 1, 0 }, D3DX_PI / 2);
-	m->setBoundingSphereRadius(1.5f);
-	pDrawable3D myMesh1(m);
-	gameModel.add3D(myMesh1);
+	for (float z = 6.0f; z > -5; z -= 4) {
+		m = new Mesh(TEXT("Harrier.x"));
+		m->setPosition({ -4.0f, 0.3f, z });
+		//m->setBoundingSphereRadius(1.3f);
+		pDrawable3D myMesh1(m);
+		gameModel.add3D(myMesh1);
+	}
 
 	//Mirror Cube
 	MirrorCube* mc = new MirrorCube();
-	mc->setPosition({ 0.0f, 0.5f, -2.0f });
-	mc->setScale({ 0.4f, 0.4f, 0.4f });
+	mc->setPosition({ 0.0f, 3.0f, 5.0f });
+	mc->setScale({ 1.5f, 1.5f, 1.5f });
 	std::shared_ptr<MirrorCube> myMC(mc);
 	gameModel.setMirror(myMC);
-
-	//little center cube
-	Cube* c = new Cube();
-	c->setPosition({ 0.0f, 0.6f, 0.0f });
-	c->setScale({ 0.6f, 0.6f, 0.6f });
-	pDrawable3D myObj(c);
-	gameModel.add3D(myObj);
 
 	//Ground plane
 	m = new Mesh(TEXT("ground.x"));
@@ -86,11 +84,10 @@ Controller::Controller(HINSTANCE hInstance)
 	gameModel.addLight(myLight2);
 
 	pLight myLight3(new Light(D3DLIGHT_SPOT));
-	myLight3->setPosition(2.0f, 5.0f, 0.0f);
+	myLight3->setPosition(3.0f, 5.0f, 3.0f);
 	myLight3->setDirection({ 0.0f, -1.0f, 0.0f });
 	gameModel.addLight(myLight3);
 }
-
 
 /*
 Summary:
