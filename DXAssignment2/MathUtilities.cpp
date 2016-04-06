@@ -19,7 +19,7 @@ BoundingSphere::BoundingSphere() {
 	_radius = 1.0f; 
 }
 
-Ray MathUtilities::CalcPickingRay(LPDIRECT3DDEVICE9 & device, int x, int y) {
+Ray MathUtilities::CalcPickingRay(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX & projection, int x, int y) {
 	float px = 0.0f;
 	float py = 0.0f;
 

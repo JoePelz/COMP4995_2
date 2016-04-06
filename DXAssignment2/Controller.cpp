@@ -31,6 +31,7 @@ Controller::Controller(HINSTANCE hInstance)
 	Mesh* m = new Mesh(TEXT("Viggen.x"));
 	m->setPosition({ 2.0f, 0.5f, 0.0f });
 	m->setScale({ 2.0f, 2.0f, 2.0f });
+	m->setBoundingSphereRadius(2.0f);
 	pDrawable3D myMesh(m);
 	gameModel.add3D(myMesh);
 
@@ -38,6 +39,7 @@ Controller::Controller(HINSTANCE hInstance)
 	m = new Mesh(TEXT("Harrier.x"));
 	m->setPosition({ 0.0f, 1.5f, 0.0f });
 	m->rotate({ 0, 1, 0 }, D3DX_PI / 2);
+	m->setBoundingSphereRadius(1.5f);
 	pDrawable3D myMesh1(m);
 	gameModel.add3D(myMesh1);
 
@@ -58,6 +60,7 @@ Controller::Controller(HINSTANCE hInstance)
 	//Ground plane
 	m = new Mesh(TEXT("ground.x"));
 	m->setScale({ 10, 10, 10 });
+	m->setSelectable(false);
 	pDrawable3D myMesh2(m);
 	gameModel.add3D(myMesh2);
 
@@ -65,6 +68,7 @@ Controller::Controller(HINSTANCE hInstance)
 	m = new Mesh(TEXT("skyball.x"));
 	m->setRotation({ 1, 0, 0 }, D3DX_PI);
 	m->setScale({ 15, 15, 15 });
+	m->setSelectable(false);
 	pDrawable3D myMesh3(m);
 	gameModel.add3D(myMesh3);
 	
@@ -569,14 +573,13 @@ Return: -
 */
 void Controller::PickSelectObject() {
 	auto& device = renderEngine.getDevice();
-	Ray ray = MathUtilities::CalcPickingRay(device, input.mpos.x, input.mpos.y);
+	const auto& cam = gameModel.getCamera();
+
+	Ray ray = MathUtilities::CalcPickingRay(device, cam.getProjectionMatrix(), input.mpos.x, input.mpos.y);
 
 	// transform the ray to world space
-	D3DXMATRIX view;
-	device->GetTransform(D3DTS_VIEW, &view);
-
 	D3DXMATRIX viewInverse;
-	D3DXMatrixInverse(&viewInverse, 0, &view);
+	D3DXMatrixInverse(&viewInverse, 0, &cam.getViewMatrix());
 
 	MathUtilities::TransformRay(ray, viewInverse);
 
@@ -585,7 +588,7 @@ void Controller::PickSelectObject() {
 	Transform3D* winner = 0;
 	for (auto& obj : gameModel.get3D()) {
 		dist = MathUtilities::RaySphereIntTest(ray, obj->getBoundingSphere());
-		if (dist > 0.0f && dist < bestVal) {
+		if (dist > 0.0f && dist < bestVal && obj->isSelectable()) {
 			winner = obj.get();
 			bestVal = dist;
 		}

@@ -53,8 +53,12 @@ public:
 		return tnet_;
 	}
 
-	virtual const BoundingSphere& getBoundingSphere() {
+	virtual const BoundingSphere& getBoundingSphere() const {
 		return bsphere_;
+	}
+
+	virtual void setBoundingSphereRadius(float radius) {
+		bsphere_._radius = radius;
 	}
 };
 

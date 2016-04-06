@@ -54,19 +54,22 @@ OutputVS TransformVS(float3 posL : POSITION0, float2 tex0 : TEXCOORD0) {
 // specify black to color the lines black. 
 float4 TransformPS(float2 tex0 : TEXCOORD0) : COLOR
 {
-	float3 texColor = tex2D(TexS, tex0).rgb;
-	return float4(texColor, 0.5f);
-	//return float4(1.0f, 1.0f, 1.0f, 1.0f);
+	//sample the center of the texel, instead of the top left corner.
+	float2 offset = float2(1.0f / 1280.0f, 1.0f / 960.0f);
+
+	float3 color = tex2D(TexS, tex0 + offset);
+	float3 outColor = color;
+	outColor.r = (color.r * 0.393) + (color.g * 0.769) + (color.b * 0.189);
+	outColor.g = (color.r * 0.349) + (color.g * 0.686) + (color.b * 0.168);
+	outColor.b = (color.r * 0.272) + (color.g * 0.534) + (color.b * 0.131);
+
+	return float4(outColor, 1.0f);
 }
 
 technique TransformTech {
-	pass P0
-	{
+	pass P0 {
 		// Specify the vertex and pixel shader associated with this pass.
 		vertexShader = compile vs_2_0 TransformVS();
-		pixelShader  = compile ps_2_0 TransformPS();
-
-		// Specify the render/device states associated with this pass.
-		//FillMode = Wireframe;
+		pixelShader = compile ps_2_0 TransformPS();
 	}
 }

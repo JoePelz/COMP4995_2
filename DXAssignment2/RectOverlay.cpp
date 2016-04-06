@@ -2,10 +2,10 @@
 
 void RectOverlay::initializeResources(LPDIRECT3DDEVICE9 & device) {
 	TexturedVertex vertices[] = {
-		{ -1.0f,  1.0f, -1.0f, 1.0f, 0.0f },
 		{  1.0f,  1.0f, -1.0f, 0.0f, 0.0f },
-		{ -1.0f, -1.0f, -1.0f, 1.0f, 1.0f },
-		{  1.0f, -1.0f, -1.0f, 0.0f, 1.0f }
+		{ -1.0f,  1.0f, -1.0f, 1.0f, 0.0f },
+		{  1.0f, -1.0f, -1.0f, 0.0f, 1.0f },
+		{ -1.0f, -1.0f, -1.0f, 1.0f, 1.0f }
 	};
 
 	auto r = device->CreateVertexBuffer(sizeof(vertices), D3DUSAGE_WRITEONLY, TexturedVertex_FLAGS, D3DPOOL_DEFAULT, &vertexBuffer_, NULL);
@@ -77,8 +77,8 @@ void RectOverlay::drawLite(LPDIRECT3DDEVICE9 & device, const D3DXMATRIX * xform)
 }
 
 RectOverlay::RectOverlay() {
-	setPosition({ 0, 0, 0 });
-	setScale({ 0.4f, 0.4f, 0.4f });
+	setPosition({ 0, 0, -1 });
+	setScale({ 1.0f, 1.0f, 1.0f });
 	setupMaterial();
 }
 

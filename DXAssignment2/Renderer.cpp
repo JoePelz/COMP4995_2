@@ -174,8 +174,6 @@ int Renderer::render(Model& model) {
 	
 	//render regular geometry (1st pass)
 	Scene3D(model, NULL);
-	//render the mirror cube (using stencil buffers)
-	//RenderMirrors(model);
 
 	//done 3d work.
 	pDevice_->EndScene();
@@ -242,7 +240,9 @@ void Renderer::RenderMirrors(Model& model) {
 
 		// Finally, draw the reflected scene
 		pDevice_->SetClipPlane(0, (float*)&mirror->getFacePlane());
-		Scene3D(model, R);
+		for (auto& obj : model.get3D()) {
+			obj->draw(pDevice_, R);
+		}
 
 		//unreflect the lights
 		for (auto& light : model.getLights()) {
@@ -254,7 +254,6 @@ void Renderer::RenderMirrors(Model& model) {
 	pDevice_->SetRenderState(D3DRS_STENCILENABLE, false);
 	pDevice_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 	pDevice_->SetRenderState(D3DRS_CLIPPLANEENABLE, 0); //disable clip plane again
-
 }
 
 /*
@@ -283,6 +282,9 @@ void Renderer::Scene3D(Model& model, const D3DXMATRIX* xform) {
 		obj->draw(pDevice_, xform);
 	}
 
+	//render the mirror cube (using stencil buffers)
+	RenderMirrors(model);
+
 	HRESULT r;
 	r = pDevice_->StretchRect(pBackBuffer_, NULL, model.textureSurface, NULL, D3DTEXF_LINEAR);
 	Errors::ErrorCheck(r, TEXT("Error over StretchRect"));
@@ -306,9 +308,9 @@ void Renderer::Scene3D(Model& model, const D3DXMATRIX* xform) {
 	r = model.mFX->Begin(&numPasses, 0);
 	Errors::ErrorCheck(r, TEXT("FX Begin failed"));
 
-	pDevice_->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	pDevice_->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR);
-	pDevice_->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCCOLOR);
+	//pDevice_->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	//pDevice_->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR);
+	//pDevice_->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCCOLOR);
 
 	for (UINT i = 0; i < numPasses; ++i) {
 		r = model.mFX->BeginPass(i);

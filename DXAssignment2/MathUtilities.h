@@ -24,7 +24,7 @@ struct Ray {
 };
 
 struct MathUtilities {
-	static Ray CalcPickingRay(LPDIRECT3DDEVICE9& device, int x, int y);
+	static Ray CalcPickingRay(LPDIRECT3DDEVICE9& device, const D3DXMATRIX & projection, int x, int y);
 	static void TransformRay(Ray& ray, const D3DXMATRIX& T);
 	static float RaySphereIntTest(const Ray& ray, const BoundingSphere& sphere);
 };
