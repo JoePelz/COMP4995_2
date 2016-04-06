@@ -182,7 +182,6 @@ long CALLBACK Controller::windowLoop(HWND hWnd, UINT uMessage, WPARAM wParam, LP
 	return DefWindowProc(hWnd, uMessage, wParam, lParam);
 }
 
-
 /*
 Summary:
 	Callback for mouse button presses. Updates input state object.
@@ -317,7 +316,8 @@ bool Controller::KeyDown(WPARAM wParam) {
 		renderEngine.getDevice()->GetLightEnable(2, (BOOL*)&temp);
 		renderEngine.getDevice()->LightEnable(2, !temp);
 		return true;
-
+	case VK_F3:
+		gameModel.rectOverlay.cycleShader(renderEngine.getDevice());
 	}
 
 	return false;
@@ -403,47 +403,8 @@ void Controller::initializeResources() {
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	device->SetRenderState(D3DRS_LIGHTING, TRUE);
 	device->SetRenderState(D3DRS_STENCILENABLE, TRUE);
-	//device->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(128, 128, 128));
-
 
 	gameModel.rectOverlay.initializeResources(device);
-	LPDIRECT3DSURFACE9 backBuffer;
-	D3DSURFACE_DESC description;
-
-	HRESULT r = device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer);
-	if (FAILED(r) || FAILED(backBuffer->GetDesc(&description))) {
-		Errors::SetError(TEXT("Couldn't obtain backBuffer information"));
-		return;
-	}
-	backBuffer->Release();
-	backBuffer = 0;
-	//testTexture 
-	device->CreateTexture(description.Width, description.Height, 1, D3DUSAGE_RENDERTARGET, description.Format, D3DPOOL_DEFAULT, &gameModel.testTexture, NULL);
-
-	r = gameModel.testTexture->GetSurfaceLevel(0, &gameModel.textureSurface);
-	Errors::ErrorCheck(r, TEXT("Error getting surface level 0"));
-
-	
-	//Set up pixel shader mumbo jumbo
-	ID3DXBuffer* errors = 0;
-	D3DXCreateEffectFromFile(device, TEXT("pixelShader.fx"), 0, 0, D3DXSHADER_DEBUG, 0, &gameModel.mFX, &errors);
-	if (errors)
-		MessageBox(0, (TCHAR*)errors->GetBufferPointer(), 0, 0);
-
-	// Obtain handles.
-	gameModel.mhTech = gameModel.mFX->GetTechniqueByName("TransformTech");
-	gameModel.mhWorld = gameModel.mFX->GetParameterByName(0, "gWorld");
-	gameModel.mhTex = gameModel.mFX->GetParameterByName(0, "gTex");
-
-	//Init All Vertex Declarations
-	D3DVERTEXELEMENT9 VertexPNTElements[] =
-	{
-		{ 0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
-		{ 0, 12, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0 },
-		D3DDECL_END()
-	};
-	r = device->CreateVertexDeclaration(VertexPNTElements, &gameModel.vertDecl);
-	Errors::ErrorCheck(r, TEXT("Vertex Declaration failed"));
 }
 
 /*
@@ -466,24 +427,7 @@ void Controller::releaseResources() {
 	for (auto& obj : gameModel.getFG()) {
 		obj->releaseResources();
 	}
-
-	if (gameModel.textureSurface != NULL) {
-		gameModel.textureSurface->Release();
-		gameModel.textureSurface = NULL;
-	}
-	if (gameModel.testTexture != NULL) {
-		gameModel.testTexture->Release();
-		gameModel.testTexture = NULL;
-	}
 	gameModel.rectOverlay.releaseResources();
-	if (gameModel.mFX) {
-		gameModel.mFX->Release();
-		gameModel.mFX = NULL;
-	}
-	if (gameModel.vertDecl) {
-		gameModel.vertDecl->Release();
-		gameModel.vertDecl = NULL;
-	}
 }
 
 /*
